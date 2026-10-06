@@ -1,0 +1,102 @@
+{
+  "note": "Fixture for scripts/import-profile.mjs. A realistic profile that reads as a person with a track record, but has two defects a scrape could plausibly produce: the About was truncated mid-sentence, and experience was listed oldest-first. Use it to see a 'usable_with_caveats' verdict.",
+
+  "custom_url_slug": "rina-hartono-ops",
+  "name": "Rina Hartono",
+  "headline": "Operations Manager | I help 20-50 person B2B services firms cut invoice handling from 6 hours a week to under 2, without adding headcount",
+
+  "about": "I have spent nine years in operations roles inside services firms, most of them watching the same problem arrive twice: the process worked until the person who built it took leave.\n\nThat is the work I do now. I document what a team actually does before changing anything, so the result is something they own rather than something they depend on me to maintain.\n\nLast year a 14-person finance team was spending six hours a week reconciling invoices by hand across three systems with no shared identifiers. We got it to forty minutes. Same headcount.\n\nEleven engagements since 2019, each starting the same way: watch someone do their own job, write down what actually happens rather than what the documentation claims.",
+
+  "experience": [
+    {
+      "title": "Operations Consultant",
+      "company": "Independent",
+      "period": "2022 - Present",
+      "location": "Jakarta, Indonesia",
+      "bullets": [
+        "Cut invoice handling from 6 hours a week to under 2 for a 14-person finance team across 1 engagement",
+        "Documented 60 processes that had only ever existed in 1 person's head",
+        "Ran 11 engagements since 2019, each starting with the same 3-step sequence"
+      ]
+    },
+    {
+      "title": "Operations Manager",
+      "company": "Advisory Firm",
+      "period": "2018 - 2022",
+      "location": "Jakarta, Indonesia",
+      "bullets": [
+        "Reduced exceptions to a set small enough to review every Friday",
+        "Cut the approval chain from 3 steps to 1 across 2 client accounts",
+        "Introduced a handover drill that surfaced 4 steps nobody had performed"
+      ]
+    },
+    {
+      "title": "Analyst",
+      "company": "Logistics Company",
+      "period": "2016 - 2018",
+      "location": "Bandung, Indonesia",
+      "bullets": [
+        "Moved 14 workflows off spreadsheets across 2 quarters",
+        "Standardised the input format so the reporting tool stopped rejecting data"
+      ]
+    },
+    {
+      "title": "Junior Analyst",
+      "company": "Services Firm",
+      "period": "2014 - 2016",
+      "location": "Surabaya, Indonesia",
+      "bullets": [
+        "Rebuilt the weekly reporting pack that 3 managers had been assembling by hand"
+      ]
+    }
+  ],
+
+  "featured": [
+    {
+      "title": "Cutting invoice handling from 6h to under 2h a week",
+      "kind": "case_study",
+      "url": "https://example.com/invoice-case-study",
+      "description": "A 14-person finance team, three systems with no shared identifiers, same headcount throughout."
+    },
+    {
+      "title": "The First 90 Days Method",
+      "kind": "article",
+      "url": "https://example.com/first-90-days",
+      "description": "The three-step sequence I use on every engagement, written up, including what it does not cover."
+    },
+    {
+      "title": "Process documentation template",
+      "kind": "article",
+      "url": "https://example.com/template",
+      "description": "The one-page template used on every engagement."
+    }
+  ],
+
+  "education": [
+    { "school": "University of Indonesia", "field": "Industrial Engineering", "year": 2014 }
+  ],
+  "licenses": [
+    { "name": "Lean Six Sigma Green Belt", "issuer": "ASQ", "year": 2021 }
+  ],
+
+  "skills": [
+    "Process Automation",
+    "SOP Documentation",
+    "Manual Process",
+    "Operations Management",
+    "Invoice Processing",
+    "Workflow Design",
+    "Process Improvement",
+    "Business Analysis",
+    "Documentation",
+    "Change Management"
+  ],
+
+  "contact": {
+    "email": "rina@example.com",
+    "website": "https://example.com"
+  },
+
+  "banner_image": "banner.png",
+  "profile_photo": "rina.png"
+}

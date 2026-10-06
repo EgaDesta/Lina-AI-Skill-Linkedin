@@ -10,6 +10,7 @@
   "scripts": {
     "test": "node --test tests/",
     "validate": "node scripts/validate-persona.mjs",
+    "import:profile": "node scripts/import-profile.mjs",
     "audit:profile": "node scripts/score-profile.mjs",
     "score:post": "node scripts/score-post.mjs",
     "check:voice": "node scripts/check-voice.mjs",

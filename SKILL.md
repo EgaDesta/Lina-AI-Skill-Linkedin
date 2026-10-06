@@ -34,10 +34,36 @@ around.
 | Posts written and scored | `playbooks/05-post-compose.md` | `check-voice.mjs` then `score-post.mjs` |
 | Comments, DMs, connections | `playbooks/06-engagement.md` | — |
 | Which content is working | `playbooks/07-analytics-review.md` | `check-voice.mjs --drift` |
+| **Import from a LinkedIn URL** | `playbooks/08-import-from-url.md` | `import-profile.mjs` |
 | Copy for a single field | `templates/` | — |
 
 Read the playbook before doing the work. The orderings in them are the reasoning;
 skipping one produces output that has to be redone.
+
+## Importing from a LinkedIn URL
+
+If the user pastes a LinkedIn URL and wants it turned into a persona, this is the
+path. It is gated on purpose.
+
+1. **Extract** the profile in the agent browser. Per-field selectors and the
+   failure modes are in `integrations/browseros-neo.md`.
+2. **Verify before anything else:**
+   ```bash
+   node scripts/import-profile.mjs --file data/examples/<slug>.json
+   ```
+   Verdict is `sound`, `usable_with_caveats`, or `unsound`. On `unsound`, stop and
+   re-extract — a proposal built from a misread profile gets pasted into
+   `persona/` and trusted.
+3. **Score the profile as it is** with `score-profile.mjs`. This is the
+   before-picture.
+4. **Propose** persona fields with `prompts/propose-persona.md`, writing to
+   `output/reports/`. Propose; never write `persona/*.yaml` from an import.
+5. **Never propose a `proof.yaml` entry.** The verification report lists the
+   numbers found on the profile. Ask which are results and where the evidence is;
+   the tier and the source come from the owner, never from you.
+
+If the page shows a login wall or a CAPTCHA, use `request_human_help`. Never work
+around one, and never proceed from a login page.
 
 ## Commands
 

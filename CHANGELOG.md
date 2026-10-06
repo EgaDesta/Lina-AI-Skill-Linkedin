@@ -8,6 +8,20 @@ is independent: a persona is a separate artefact from the code scoring it.
 
 ### Added
 
+- `scripts/import-profile.mjs` — verifies a scraped LinkedIn profile before any
+  persona field is proposed from it. 15 checks against the specific ways a scrape
+  fails: a login wall read as a headline, LinkedIn placeholder copy, a truncated
+  About, roles paired with the wrong dates, partially-parsed Featured entries,
+  leftover template text. Verdict is `sound`, `usable_with_caveats`, or `unsound`.
+- `playbooks/08-import-from-url.md` — the URL-to-persona workflow, gated on
+  verification, including the browser extraction recipe.
+- `prompts/propose-persona.md` — proposes persona fields with per-field evidence
+  labels, and refuses to write `proof.yaml` entries.
+- `data/examples/sample-profile-rina.json` — a sound extraction fixture: a
+  profile with real track record, correct ordering, four roles, three Featured
+  entries, and numbers for the proof step to surface.
+- `tests/test-import.mjs` — 19 tests using deliberately damaged fixtures, asserting
+  the verdict flips.
 - `SKILL.md` — agent router. Maps a request to a playbook and a command, and
   states the rules an agent must not break.
 - `README.md` — what the repo is, why it is built this way, five-minute start.
@@ -17,6 +31,26 @@ is independent: a persona is a separate artefact from the code scoring it.
 - `docs/FILL-CHECKLIST.md` — the persona fields to fill, in dependency order, with
   what each one unlocks.
 - `.gitignore`, `package.json`, `LICENSE` (MIT).
+
+### Fixed
+
+- **`import-profile.mjs` classified every 1-2 digit number as structural**, which
+  discarded `60 processes documented` and `11 engagements` — exactly the numbers
+  a proof entry is built from. Only four-digit years qualify now. Over-inclusion
+  is the safer error: the output is a list for the owner to sort, not a
+  classification.
+- **`experience_monotonic` rejected correctly-ordered profiles.** It required each
+  role to start before the one above it *ended*, which no real profile satisfies.
+  It now checks the one ordering guarantee LinkedIn actually makes — newest role
+  first — so it fires on a genuine extraction fault and stays silent otherwise.
+- **The agency check fired on independent consultants.** It matched the bare word
+  "consulting", which is most individual consultants' entire title. It now matches
+  a corporate form (`Ltd`, `LLC`, `GmbH`) or an agency word in a company
+  position.
+- **The About-length message reported a finding the owner could not act on.** A
+  short About is ambiguous between genuinely short and truncated in extraction;
+  only the owner knows which, and the two need different responses. The message
+  now asks.
 
 ## [0.1.0] — initial engine
 

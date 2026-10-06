@@ -254,11 +254,53 @@ output/        generated. gitignored.
 
 ---
 
+## Start from a LinkedIn URL
+
+Paste a profile URL and this flow runs. `playbooks/08-import-from-url.md` is the
+full procedure; `prompts/propose-persona.md` is the proposal prompt.
+
+```bash
+# 1. verify the extraction before trusting it
+node scripts/import-profile.mjs --file data/examples/<slug>.json
+
+# 2. score the profile as it stands
+node scripts/score-profile.mjs --file data/examples/<slug>.json
+```
+
+```
+========================================================================
+LINA IMPORT VERIFICATION — rina-hartono-ops
+========================================================================
+
+VERDICT  SOUND    15/15 checks passed
+
+NEXT     Score with score-profile.mjs, then run prompts/propose-persona.md.
+
+NUMBERS ON THE PROFILE — sort these before any proof.yaml entry
+  These are already published, so they are the easiest to source. Ask which are
+  results and where the evidence is. Do not write a tier or source on their behalf.
+  6 hours  in: "Operations Manager | I help 20-50 person B2B services firms cut..."
+  14       in: "Last year a 14-person finance team was spending six hours a week..."
+  60       in: "Cut invoice handling from 6 hours a week to under 2 for a 14-person..."
+  11       in: "Ran 11 engagements since 2019, each starting with the same 3-step..."
+```
+
+Verification exists because extraction is the weakest link in this system. A
+misread profile produces confident, wrong persona proposals, and those get pasted
+into `persona/` and trusted. The checks target how a scrape actually fails — a
+login wall read as a headline, a truncated About, roles paired with the wrong
+dates — and print `UNSOUND` when the extraction cannot be trusted.
+
+Two things never happen in an import: no `proof.yaml` entry is written, and no
+`persona/*.yaml` file is edited. The proposal goes to `output/reports/` and the
+owner decides.
+
 ## Scripts
 
 | Command | Does |
 |---|---|
 | `validate-persona.mjs` | completeness, cross-references, publish-gate sanity, voice measurement |
+| `import-profile.mjs` | verifies a scraped profile before anything is proposed from it |
 | `score-profile.mjs` | profile audit → score, findings by severity, top three fixes |
 | `score-post.mjs` | draft → score, hard blocks, measures, pending-judgement count |
 | `check-voice.mjs` | hard bans, soft tells, proof sourcing, optional drift over history |
