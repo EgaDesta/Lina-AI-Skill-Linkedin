@@ -12,6 +12,10 @@ is independent: a persona is a separate artefact from the code scoring it.
   states the rules an agent must not break.
 - `README.md` — what the repo is, why it is built this way, five-minute start.
 - `AGENTS.md` — conventions and the rules that matter for automated work here.
+- `docs/GETTING-STARTED.md` — a walkthrough with real captured output for each
+  of the six commands, so the expected output is knowable before running anything.
+- `docs/FILL-CHECKLIST.md` — the persona fields to fill, in dependency order, with
+  what each one unlocks.
 - `.gitignore`, `package.json`, `LICENSE` (MIT).
 
 ## [0.1.0] — initial engine
@@ -63,17 +67,27 @@ bullets, Featured, recommendations, banner brief, skill stack, connection note.
 
 **Fixtures and tests.** A complete filled persona at
 `data/examples/sample-persona/`, a good and a bad post draft, a deliberately weak
-profile, and 130 tests across five files.
+profile, and 133 tests across five files.
 
 ### Fixed
 
 Bugs found by the test suite while bringing the engine up. Each was a real
 behavioural defect, not a test that needed loosening.
 
-- **`slop.mjs` counted every hit twice.** Phrase matching searched the normalised
-  and raw text concatenated, so a phrase repeated three times reported six, and
-  reported positions were only meaningful for occurrences in the first half of the
-  text. Rewritten as a single locate-first-then-fallback search with
+- **Hard blocks were computed but never printed.** `score-post.mjs` put them in
+  `report.hard_blocks`; `renderReport` only looked for them on `findings`, so the
+  section header never appeared. A post rejected for an unsourced claim showed a
+  score of 0 with no stated reason, which is the least actionable report the tool
+  can produce — the reader cannot tell whether to fix the post or the score.
+- **A hard block listed every unsourced number in one unbroken paragraph.** Four
+  numbers with their surrounding sentences ran together as a single line that
+  wrapped into a wall, hiding the numbers that were the whole reason for the
+  block. Each occurrence is now its own line, with a `wrapText` helper, a
+  truncated quote of the sentence it came from, and an explicit `action`.
+- **`slop.mjs` counted every phrase hit twice.** Phrase matching searched the
+  normalised and raw text concatenated, so a phrase repeated three times reported
+  six, and reported positions were only meaningful for occurrences in the first
+  half of the text. Rewritten as a single locate-first-then-fallback search with
   contraction-tolerant matching.
 - **`textstats.mjs` broke numbered and bulleted lists into fragments.** The
   sentence splitter cut after each `N.`, turning `1. Write the trigger down.` into
@@ -131,12 +145,12 @@ accidentally reversed.
 - **The approval gate is enforced in four places.** Schema, scorer, exporter and
   validator. Redundant on purpose: a single enforcement point is one careless edit
   from being bypassed, and publishing is irreversible.
-- **`gen-calendar.mjs` may exit 1 on a valid plan** when it reports a warning-level
+- **`gen-calendar.mjs` may exit 1 on a valid plan** when it reports a warning
   violation. Read `violations`; do not assume the plan is broken.
 - **`drift.max_ngram_overlap_any_pair` is calibrated for post-length text.**
   Jaccard overlap on 4-grams is size-dependent — the same edit on a 12-word
   sentence scores around 0.10, on a 200-word post around 0.70. The 0.25 threshold
   means something at the length it is applied to and nothing below it.
 
-[Unreleased]: https://github.com/egadestaviano/lina-linked-persona/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/egadestaviano/lina-linked-persona/releases/tag/v0.1.0
+[Unreleased]: https://github.com/EgaDesta/Lina-AI-Skill-Linkedin/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/EgaDesta/Lina-AI-Skill-Linkedin/releases/tag/v0.1.0

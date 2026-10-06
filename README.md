@@ -277,12 +277,26 @@ subject: slot-2026-01-08-001
 ========================================================================
 SCORE  0 / 100   band: reject
 
-HARD BLOCKS
-  [HARD] hb1  Unsourced factual claim  (0 pts)
-         measured "40%" not in proof.yaml (near: cut processing time by 40%)
-         fix: Add the result to persona/proof.yaml with a tier and a source,
-              or remove the number.  [low]
+HARD BLOCKS — this is rejected regardless of score
+  [HARD] hb1  Unsourced factual claim
+         "40%" — not in proof.yaml. In: "cut processing time by 40%..."
+         fix: Add each result to persona/proof.yaml with a tier and a source,
+              or remove the number from the post.  [low]
 ```
+
+Read the last two lines of any post report: the computed percentage, and how many
+points are pending human judgement. A total quoted without them is misleading.
+
+---
+
+## Documentation
+
+| File | For |
+|---|---|
+| `docs/GETTING-STARTED.md` | a walkthrough with real captured output for all six commands |
+| `docs/FILL-CHECKLIST.md` | which persona fields to fill, in dependency order, and what each unlocks |
+| `SKILL.md` | the agent router, if you are wiring this into an agent |
+| `AGENTS.md` | conventions, and what looks broken but is not |
 
 ---
 

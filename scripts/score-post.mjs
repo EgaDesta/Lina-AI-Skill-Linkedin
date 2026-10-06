@@ -10,7 +10,7 @@
 // into the post when given --write.
 // Exit 0 = above threshold, 1 = below, 3 = cannot run.
 
-import { parseArgs, renderReport, usage, bandFor, orderFindings } from './lib/cli.mjs';
+import { parseArgs, renderReport, usage, bandFor, orderFindings, truncate } from './lib/cli.mjs';
 import { loadPersona, loadRubric } from './lib/persona.mjs';
 import { readJson, repoPath, writeJson, nowISO, fileExists, readText } from './lib/fsio.mjs';
 import {
@@ -403,24 +403,35 @@ if (needsSource.length > 0) {
   hardBlocks.push({
     id: 'hb1',
     label: 'Unsourced factual claim',
-    detail: needsSource.map((n) => `"${n.value}" not in proof.yaml (near: ${n.matched_claim})`).join('; '),
+    detail: needsSource.map(
+      (n) => `"${n.value}" — not in proof.yaml. In: "${truncate(n.matched_claim, 110)}"`,
+    ),
     reason: 'Lina must not manufacture results.',
+    action:
+      'Add each result to persona/proof.yaml with a tier and a source, or remove the number from the post.',
+    effort: 'low',
   });
 }
 if (persona.proof?.policy?.require_client_permission && needsSource.some((n) => n.permission === 'requested' || n.permission === 'denied')) {
   hardBlocks.push({
     id: 'hb2',
     label: 'Client named without permission',
-    detail: 'A proof entry referenced here has permission other than granted.',
+    detail: needsSource
+      .filter((n) => n.permission === 'requested' || n.permission === 'denied')
+      .map((n) => `"${n.value}" — permission is "${n.permission}"`),
     reason: 'Breach of confidentiality.',
+    action: 'Genericise the subject ("a 12-person finance team") or set permission: granted in proof.yaml.',
+    effort: 'low',
   });
 }
 if (hardBans.some((b) => /as an ai|ai.generated|language model/i.test(b.phrase))) {
   hardBlocks.push({
     id: 'hb3',
     label: 'Banned self-reference',
-    detail: hardBans.map((b) => b.phrase).join(', '),
+    detail: hardBans.filter((b) => /as an ai|ai.generated|language model/i.test(b.phrase)).map((b) => b.phrase),
     reason: 'Signals machine authorship to a professional audience.',
+    action: 'Cut the phrase. There is no context that rescues it.',
+    effort: 'trivial',
   });
 }
 const publishMode = persona.identity?.publish?.mode ?? 'draft';

@@ -204,6 +204,36 @@ test('score-post blocks the bad sample for unsourced numbers', () => {
   assert.ok(ids.includes('hb1'), `expected hb1 (unsourced claim), got ${ids.join(', ')}`);
 });
 
+test('a hard block names each offending number, not just a count', () => {
+  // The reason for the whole repo is that a model will invent a number. A report
+  // saying "unsourced claims" without listing them forces the reader to find
+  // them by eye, which is exactly the review that gets skipped.
+  const out = runJson('score-post.mjs', ['--file', repoPath('data', 'examples', 'sample-post-bad.json')]);
+  const hb1 = out.hard_blocks.find((b) => b.id === 'hb1');
+  assert.ok(Array.isArray(hb1.detail), 'detail should be a list, one entry per occurrence');
+  assert.equal(hb1.detail.length, 4, `expected 4 unsourced numbers, got ${hb1.detail.length}`);
+  for (const d of hb1.detail) {
+    assert.match(d, /^\"\d+\"/, `entry should lead with the value: ${d}`);
+    assert.match(d, /proof\.yaml/, `entry should say where it belongs: ${d}`);
+  }
+  assert.ok(hb1.action, 'a hard block must state how to resolve it');
+});
+
+test('hard blocks are printed in the human report, not hidden in the json', () => {
+  const r = run('score-post.mjs', ['--file', repoPath('data', 'examples', 'sample-post-bad.json')]);
+  assert.match(r.stdout, /HARD BLOCKS/, 'the section header must be present');
+  assert.match(r.stdout, /hb1/);
+  assert.match(r.stdout, /not in proof\.yaml/);
+  // Each occurrence on its own line, so the numbers are scannable.
+  assert.match(r.stdout, /^\s+"47"/m);
+  assert.match(r.stdout, /^\s+"73"/m);
+});
+
+test('a clean post prints no hard-block section', () => {
+  const r = run('score-post.mjs', ['--file', repoPath('data', 'examples', 'sample-post-good.json')]);
+  assert.ok(!/HARD BLOCKS/.test(r.stdout), 'a clean post should not print the section at all');
+});
+
 test('score-post does not hard-block the good sample', () => {
   const out = runJson('score-post.mjs', ['--file', repoPath('data', 'examples', 'sample-post-good.json')]);
   assert.deepEqual(out.hard_blocks, [], `unexpected blocks: ${JSON.stringify(out.hard_blocks)}`);

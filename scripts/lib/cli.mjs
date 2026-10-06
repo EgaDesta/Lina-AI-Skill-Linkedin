@@ -78,7 +78,35 @@ export function renderReport(report) {
   }
   L.push('');
 
-  const hard = report.findings.filter((f) => f.hard_block);
+  // Hard blocks live either on findings or in a separate array, depending on
+  // which script produced the report. Normalise so the section below always
+  // prints them: a rejection whose reason is hidden is worse than useless,
+  // because the reader cannot tell whether to fix the post or the score.
+  // `detail` may be a string (profile rubric) or an array of per-occurrence
+  // records (post rubric). Render the array as a list, one finding per line, so
+  // the numbers are scannable instead of one paragraph.
+  const measuredOf = (h) => {
+    if (typeof h.detail === 'string') return h.detail;
+    if (Array.isArray(h.detail)) return h.detail.join('\n');
+    return null;
+  };
+  const fromArray = (report.hard_blocks ?? []).map((h) => ({
+    check_id: h.id,
+    severity: 'blocker',
+    hard_block: true,
+    passed: false,
+    label: h.label ?? h.reason ?? 'hard block',
+    points_at_stake: 0,
+    measured: measuredOf(h),
+    measured_is_list: Array.isArray(h.detail),
+    target: null,
+    offending: null,
+    fix: {
+      action: h.action ?? `Resolve ${h.id}: ${h.reason ?? h.label ?? ''}`.trim(),
+      effort: h.effort ?? 'low',
+    },
+  }));
+  const hard = [...fromArray, ...report.findings.filter((f) => f.hard_block)];
   const blockers = report.findings.filter((f) => !f.hard_block && f.severity === 'blocker' && !f.passed);
   const warns = report.findings.filter((f) => !f.hard_block && f.severity === 'warn' && !f.passed);
   const nices = report.findings.filter((f) => !f.hard_block && f.severity === 'nice' && !f.passed);
@@ -101,7 +129,25 @@ export function renderReport(report) {
     }
   };
 
-  section('HARD BLOCKS', hard);
+  if (hard.length) {
+    L.push('HARD BLOCKS — this is rejected regardless of score');
+    for (const f of hard) {
+      L.push(`  ${SYM.hard} ${f.check_id}  ${f.label}`);
+      if (f.measured_is_list && Array.isArray(f.measured)) {
+        for (const item of f.measured) L.push(`         - ${String(item).trim()}`);
+      } else if (f.measured_is_list) {
+        for (const item of String(f.measured).split('\n')) {
+          if (item.trim()) L.push(wrapText(item.trim()));
+        }
+      } else if (f.measured) {
+        L.push(wrapText(f.measured));
+      }
+      if (f.target && f.target !== '-') L.push(`         target: ${f.target}`);
+      if (f.fix) L.push(`         fix: ${f.fix.action}  [${f.fix.effort}]`);
+      L.push('');
+    }
+  }
+
   section('BLOCKERS', blockers);
   section('WARNINGS', warns);
   section('NICES', nices);
@@ -177,6 +223,36 @@ function fmt(v) {
 export function truncate(s, n) {
   const str = String(s).replace(/\s+/g, ' ').trim();
   return str.length <= n ? str : `${str.slice(0, n - 1)}…`;
+}
+
+/**
+ * Wrap long detail text across lines.
+ *
+ * A hard-block detail can be several hundred characters — four unsourced numbers
+ * with the sentence each came from. Printed on one line it wraps into a wall
+ * and buries the actual numbers, which are the reason for the block.
+ */
+export function wrapText(s, indent = 9, width = 74) {
+  const flat = String(s).replace(/\s+/g, ' ').trim();
+  if (!flat) return '';
+  const words = flat.split(' ');
+  const pad = ' '.repeat(indent);
+  const out = [];
+  let line = '';
+  for (const w of words) {
+    if (line === '') {
+      line = w;
+      continue;
+    }
+    if ((line.length + 1 + w.length) > width) {
+      out.push(pad + line);
+      line = w;
+    } else {
+      line += ` ${w}`;
+    }
+  }
+  if (line) out.push(pad + line);
+  return out.join('\n');
 }
 
 /** Stable sort: hard blocks first, then severity, then points at stake. */
