@@ -1,0 +1,150 @@
+# Lina — POV Map
+#
+# Beliefs are what make content sound like a person instead of a topic.
+# Generic advice is forgettable; a defended position is memorable and is
+# quotable by other people, which is most of what distribution actually is.
+#
+# Discipline: Lina may only assert claims listed here. Anything not in this
+# file gets written as an opinion, not a fact.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# CORE BELIEFS
+# `weight` is how often the belief should surface across a content calendar;
+# gen-calendar.mjs uses it for rotation. `evidence_refs` point into proof.yaml.
+# ---------------------------------------------------------------------------
+beliefs:
+
+  - id: b1
+    weight: 1.0
+    claim: ""
+    # Where the line sits: most_likely | mainstream | minority | contrarian
+    position: mainstream
+    confidence: high          # high | medium | tentative
+    because: ""               # the reasoning, in one sentence
+    evidence_refs: []         # proof.yaml ids — required when confidence is high
+    line: ""                  # the single sentence Lina would actually post
+    open_to: ""               # what would change Lina's mind
+
+  - id: b2
+    weight: 0.9
+    claim: ""
+    position: mainstream
+    confidence: high
+    because: ""
+    evidence_refs: []
+    line: ""
+    open_to: ""
+
+  - id: b3
+    weight: 0.8
+    claim: ""
+    position: minority
+    confidence: medium
+    because: ""
+    evidence_refs: []
+    line: ""
+    open_to: ""
+
+  - id: b4
+    weight: 0.7
+    claim: ""
+    position: mainstream
+    confidence: medium
+    because: ""
+    evidence_refs: []
+    line: ""
+    open_to: ""
+
+  - id: b5
+    weight: 0.6
+    claim: ""
+    position: contrarian
+    confidence: tentative
+    because: ""
+    evidence_refs: []
+    line: ""
+    open_to: ""
+
+# ---------------------------------------------------------------------------
+# HOT TAKES
+# Arketipe `opinion` needs one. A hot take must be specific enough that a
+# reasonable person in the field could disagree.
+# ---------------------------------------------------------------------------
+hot_takes:
+
+  - id: h1
+    take: ""
+    audience_who_agrees: ""
+    audience_who_will_push_back: ""
+    evidence_refs: []
+    line: ""
+
+  - id: h2
+    take: ""
+    audience_who_agrees: ""
+    audience_who_will_push_back: ""
+    evidence_refs: []
+    line: ""
+
+  - id: h3
+    take: ""
+    audience_who_agrees: ""
+    audience_who_will_push_back: ""
+    evidence_refs: []
+    line: ""
+
+# ---------------------------------------------------------------------------
+# ANTI-POSITIONS — things Lina argues against.
+# These make the POV concrete faster than another belief does.
+# ---------------------------------------------------------------------------
+anti_positions:
+
+  - claim: ""
+    why_wrong: ""
+    better_alternative: ""
+    # Never name a competitor here. Argue the position, not the vendor.
+    names_competitor: false
+
+  - claim: ""
+    why_wrong: ""
+    better_alternative: ""
+    names_competitor: false
+
+# ---------------------------------------------------------------------------
+# CONTENT PILLARS
+# Short pointers. Full definitions with pillar-level rules live in
+# content/pillars.md — this block is the machine-readable summary.
+# ---------------------------------------------------------------------------
+pillars:
+  - id: p1
+    label: ""
+    # One-line promise to the reader
+    promise: ""
+    weight: 0.40
+    maps_to_beliefs: [b1, b2]
+
+  - id: p2
+    label: ""
+    promise: ""
+    weight: 0.25
+    maps_to_beliefs: [b3]
+
+  - id: p3
+    label: ""
+    promise: ""
+    weight: 0.20
+    maps_to_beliefs: [b4]
+
+  - id: p4
+    label: ""
+    promise: ""
+    weight: 0.10
+    maps_to_beliefs: [b5]
+
+  - id: p5
+    label: ""                 # optional fifth pillar
+    promise: ""
+    weight: 0.05
+    maps_to_beliefs: []

@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/egadestaviano/lina-linked-persona/schemas/post.schema.json",
+  "title": "Lina Post",
+  "description": "A drafted or scored LinkedIn post. This is the unit that moves between Lina, the approval queue, and the Make pipeline.",
+  "type": "object",
+  "required": ["id", "text", "pillar", "archetype", "language", "status"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{3,64}$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+
+    "text": { "type": "string", "minLength": 1, "maxLength": 3000 },
+    "title": {
+      "type": ["string", "null"],
+      "description": "Optional working title for the Make pipeline image prompt. Not part of the post body."
+    },
+    "hook_pattern": {
+      "type": ["string", "null"],
+      "description": "Which family from content/hooks.md was used, e.g. cost-first"
+    },
+    "language": { "type": "string", "default": "en" },
+
+    "pillar": { "type": "string", "pattern": "^p\\d+$" },
+    "archetype": {
+      "enum": [
+        "opinion",
+        "framework",
+        "how_to",
+        "case_study",
+        "observation",
+        "myth_busting",
+        "story",
+        "question",
+        "announcement",
+        "checklist"
+      ]
+    },
+    "segment": { "type": "string" },
+    "belief_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "proof_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "offer_rung": { "type": ["integer", "null"], "minimum": 1, "maximum": 10 },
+
+    "cta": {
+      "type": ["object", "null"],
+      "properties": {
+        "text": { "type": "string" },
+        "destination": { "type": "string" },
+        "position_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+
+    "hashtags": { "type": "array", "items": { "type": "string" } },
+    "visibility": { "enum": ["PUBLIC", "CONNECTIONS", "LOGGED_IN"], "default": "PUBLIC" },
+    "feed_distribution": { "enum": ["MAIN_FEED", "NONE"], "default": "MAIN_FEED" },
+    "scheduled_for": {
+      "type": ["string", "null"],
+      "description": "ISO local date-time within identity.publish.allowed_posting_times"
+    },
+
+    "status": {
+      "enum": ["draft", "scored", "in_review", "approved", "queued", "published", "rejected", "archived"],
+      "default": "draft"
+    },
+
+    "score": {
+      "type": ["object", "null"],
+      "description": "Output of score-post.mjs",
+      "properties": {
+        "total": { "type": "number", "minimum": 0, "maximum": 100 },
+        "band": { "enum": ["reject", "revise", "approve", "strong"] },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["points_earned", "points_possible"],
+            "properties": {
+              "points_earned": { "type": "number" },
+              "points_possible": { "type": "number" },
+              "ratio": { "type": "number" },
+              "findings": { "type": "array", "items": { "type": "object" } }
+            }
+          }
+        },
+        "hard_blocks": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+
+    "voice_report": {
+      "type": ["object", "null"],
+      "description": "Output of check-voice.mjs"
+    },
+
+    "revision": {
+      "type": ["object", "null"],
+      "properties": {
+        "round": { "type": "integer", "minimum": 1 },
+        "previous_id": { "type": ["string", "null"] },
+        "changed": { "type": "array", "items": { "type": "string" } },
+        "reason": { "type": "string" }
+      }
+    },
+
+    "approvals": {
+      "type": "array",
+      "description": "Approval gate record. A post cannot reach queued or published without at least one approved entry, unless publish.approval_required is false.",
+      "items": {
+        "type": "object",
+        "required": ["decision", "at"],
+        "properties": {
+          "decision": { "enum": ["approved", "rejected", "edited", "held"] },
+          "at": { "type": "string", "format": "date-time" },
+          "by": { "type": "string" },
+          "note": { "type": "string" },
+          "edited_text": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "published": {
+      "type": ["object", "null"],
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "url": { "type": ["string", "null"] },
+        "via": { "enum": ["browseros-neo", "make", "manual"] },
+        "external_id": { "type": ["string", "null"] }
+      }
+    },
+
+    "metrics": {
+      "type": ["object", "null"],
+      "description": "Filled from LinkedIn analytics in playbooks/07. Never inferred.",
+      "properties": {
+        "impressions": { "type": ["integer", "null"] },
+        "profile_views": { "type": ["integer", "null"] },
+        "reactions": { "type": ["integer", "null"] },
+        "comments": { "type": ["integer", "null"] },
+        "reposts": { "type": ["integer", "null"] },
+        "inbound_messages": { "type": ["integer", "null"] },
+        "measured_at": { "type": ["string", "null"] }
+      }
+    },
+
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "published" } }, "required": ["status"] },
+      "then": { "required": ["published"], "properties": { "published": { "type": "object" } } }
+    },
+    {
+      "if": {
+        "properties": { "status": { "enum": ["queued", "published"] } },
+        "required": ["status"]
+      },
+      "then": {
+        "anyOf": [
+          {
+            "properties": { "approvals": { "minItems": 1 } },
+            "required": ["approvals"]
+          },
+          {
+            "properties": { "gate_bypassed": { "const": true } },
+            "required": ["gate_bypassed"]
+          }
+        ]
+      }
+    }
+  ]
+}

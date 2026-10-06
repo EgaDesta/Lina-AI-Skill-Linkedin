@@ -1,0 +1,4 @@
+id,date,time,pillar,segment,archetype,belief_refs,proof_refs,offer_rung,hook_family,hook_brief,claim_level,status,title,score,published_url,notes
+slot-2026-01-05-001,2026-01-05,08:30,p1,segment-1,how_to,b1,p2,1,number-list,Teach the named method as a sequence the reader can reuse.,2,planned,,,,
+slot-2026-01-05-002,2026-01-05,12:00,p3,segment-1,case_study,b2,p2,4,proof-first,Situation, intervention, measured result. Every number from proof.yaml.,3,planned,,,,
+slot-2026-01-06-003,2026-01-06,08:30,p2,segment-1,framework,b1,,1,demonstrable,Teach the named method with belief "..." as the spine.,2,planned,,,,

@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/egadestaviano/lina-linked-persona/schemas/calendar.schema.json",
+  "title": "Lina Content Calendar",
+  "description": "A generated calendar of post slots. Column order matches content/calendar.template.csv so the file round-trips through the Make pipeline and Google Sheets without transformation.",
+  "type": "object",
+  "required": ["schema_version", "persona_version", "window", "slots"],
+  "definitions": {
+    "slot": {
+      "type": "object",
+      "required": ["id", "date", "pillar", "archetype", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "time": {
+          "type": ["string", "null"],
+          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+        },
+        "pillar": { "type": "string", "pattern": "^p\\d+$" },
+        "segment": { "type": "string" },
+        "archetype": {
+          "enum": [
+            "opinion",
+            "framework",
+            "how_to",
+            "case_study",
+            "observation",
+            "myth_busting",
+            "story",
+            "question",
+            "announcement",
+            "checklist"
+          ]
+        },
+        "belief_refs": { "type": "array", "items": { "type": "string" } },
+        "proof_refs": { "type": "array", "items": { "type": "string" } },
+        "offer_rung": { "type": ["integer", "null"] },
+        "hook_family": { "type": ["string", "null"] },
+        "hook_brief": { "type": ["string", "null"] },
+        "cta_rung": { "type": ["integer", "null"] },
+        "claim_level": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "status": {
+          "enum": ["planned", "drafted", "scored", "in_review", "approved", "published", "skipped"],
+          "default": "planned"
+        },
+        "title": { "type": ["string", "null"] },
+        "score": { "type": ["number", "null"] },
+        "published_url": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "properties": {
+    "schema_version": { "const": 1 },
+    "persona_version": { "type": "string" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "window": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "end": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "description": "Realised vs planned counts. gen-calendar.mjs reports this so an impossible plan is visible before any writing happens.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "planned": { "type": "number" },
+          "actual": { "type": "number" }
+        }
+      }
+    },
+    "violations": {
+      "type": "array",
+      "description": "Non-empty means the plan violates the rubric. Fix the plan, not the writing.",
+      "items": {
+        "type": "object",
+        "required": ["rule", "detail"],
+        "properties": {
+          "rule": { "type": "string" },
+          "detail": { "type": "string" },
+          "severity": { "enum": ["blocker", "warn", "nice"] }
+        }
+      }
+    },
+    "slots": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/slot" }
+    }
+  }
+}

@@ -1,0 +1,252 @@
+# Lina — Profile Rubric
+#
+# 100 points across 7 dimensions. Every check states a condition that
+# scripts/score-profile.mjs can compute from a profile export. If a check
+# cannot be computed, it is not in this file — it belongs in a playbook as a
+# judgement call for the human, not as a fake-precision score.
+#
+# Weights sum to 100. Keep them summing to 100 when editing.
+
+schema_version: 1
+total_points: 100
+
+# Score bands. score-profile.mjs maps the total onto these.
+bands:
+  - label: not_ready
+    min: 0
+    max: 39
+    meaning: "Invisible to the target audience. Do not run campaigns."
+  - label: needs_work
+    min: 40
+    max: 59
+    meaning: "Readable but not differentiating. Fix completeness first."
+  - label: workable
+    min: 60
+    max: 79
+    meaning: "Can generate inbound, but conversion path is leaking."
+  - label: strong
+    min: 80
+    max: 92
+    meaning: "Clear, specific, defensible. Growth comes from volume now."
+  - label: category_leader
+    min: 93
+    max: 100
+    meaning: "Attracts inbound from people who already know the field."
+
+dimensions:
+
+  # -------------------------------------------------------------------------
+  - id: positioning_clarity
+    label: Positioning clarity
+    points: 22
+    question: "Can a stranger say what Lina does after 10 seconds?"
+    checks:
+      - id: pc1
+        label: Headline contains role title
+        points: 4
+        severity: blocker
+        condition: "headline contains at least one entry from profile.role_title"
+      - id: pc2
+        label: Headline contains primary keyword
+        points: 4
+        severity: blocker
+        condition: "headline contains keywords.primary.keyword (case-insensitive)"
+      - id: pc3
+        label: Headline states an outcome, not only a role
+        points: 4
+        severity: warn
+        condition: "headline matches outcome pattern: for/that/helps/so that, or contains a proof_ref metric"
+      - id: pc4
+        label: About opens with the value, not with the biography
+        points: 4
+        severity: warn
+        condition: "first 210 characters of about contain no first-person origin narrative and contain positioning.problem or positioning.method"
+      - id: pc5
+        label: Named method exists
+        points: 3
+        severity: warn
+        condition: "positioning.method is non-empty and appears in headline or first 210 characters of about"
+      - id: pc6
+        label: Differentiator is stated
+        points: 3
+        severity: nice
+        condition: "positioning.differentiator non-empty and appears in about"
+
+  # -------------------------------------------------------------------------
+  - id: proof_specificity
+    label: Proof and specificity
+    points: 18
+    question: "Is any claim checkable?"
+    checks:
+      - id: ps1
+        label: At least 3 quantified outcomes
+        points: 5
+        severity: blocker
+        condition: "count of distinct numeric outcomes in experience + about >= 3"
+      - id: ps2
+        label: Every experience bullet carries a metric or timeframe
+        points: 5
+        severity: warn
+        condition: "for each of the 3 most recent roles, at least 60% of bullets contain a digit"
+      - id: ps3
+        label: At least one case study in Featured
+        points: 4
+        severity: warn
+        condition: "featured contains an entry of kind case_study referencing proof.yaml"
+      - id: ps4
+        label: Proof entries have a valid source and tier
+        points: 4
+        severity: blocker
+        condition: "every proof.yaml entry used in the profile has tier in (verified, observed) and a non-empty source"
+
+  # -------------------------------------------------------------------------
+  - id: search_coverage
+    label: Search coverage
+    points: 14
+    question: "Does Lina surface when a buyer searches the problem?"
+    checks:
+      - id: sc1
+        label: Primary keyword in headline
+        points: 4
+        severity: blocker
+        condition: "see pc2"
+      - id: sc2
+        label: Secondary keyword in first 210 characters of About
+        points: 4
+        severity: warn
+        condition: "at least one secondary keyword present in about_preview_210"
+      - id: sc3
+        label: Top 3 pinned skills match keywords
+        points: 3
+        severity: nice
+        condition: "the 3 pinned skills include the primary keyword or a direct variant"
+      - id: sc4
+        label: Custom URL slug set
+        points: 3
+        severity: warn
+        condition: "profile.custom_url_slug non-empty and != default numeric id"
+
+  # -------------------------------------------------------------------------
+  - id: completeness
+    label: Completeness
+    points: 14
+    question: "Is anything structurally missing?"
+    checks:
+      - id: cm1
+        label: Banner image present
+        points: 2
+        severity: nice
+        condition: "banner_image non-empty"
+      - id: cm2
+        label: Positioning photo present
+        points: 2
+        severity: warn
+        condition: "profile_photo non-empty"
+      - id: cm3
+        label: About section present
+        points: 2
+        severity: blocker
+        condition: "about length >= 500 characters"
+      - id: cm4
+        label: At least 3 experience entries
+        points: 2
+        severity: warn
+        condition: "len(experience) >= 3"
+      - id: cm5
+        label: Education or license present
+        points: 2
+        severity: nice
+        condition: "len(education) + len(licenses) >= 1"
+      - id: cm6
+        label: Featured has 5 entries
+        points: 2
+        severity: warn
+        condition: "len(featured) >= 5"
+      - id: cm7
+        label: Contact info or open-to-work signal present
+        points: 2
+        severity: nice
+        condition: "any contact method present"
+
+  # -------------------------------------------------------------------------
+  - id: readability
+    label: Readability and structure
+    points: 10
+    question: "Does the profile survive the mobile scan?"
+    checks:
+      - id: rb1
+        label: Headline within LinkedIn limits
+        points: 3
+        severity: warn
+        condition: "0 < len(headline) <= 220"
+      - id: rb2
+        label: About within LinkedIn limit and not truncated badly
+        points: 3
+        severity: warn
+        condition: "0 < len(about) <= 2600 and about_preview_210 ends on a sentence boundary or clause"
+      - id: rb3
+        label: About paragraph shape matches voice.yaml
+        points: 2
+        severity: nice
+        condition: "no paragraph in about exceeds voice.paragraph.max_lines equivalent (approx 90 chars per line, so ~180 chars per paragraph)"
+      - id: rb4
+        label: About average sentence length within target
+        points: 2
+        severity: nice
+        condition: "about mean sentence words <= voice.sentence.target_words + 6"
+
+  # -------------------------------------------------------------------------
+  - id: conversion_path
+    label: Conversion path
+    points: 12
+    question: "If they liked it, is there an obvious next step?"
+    checks:
+      - id: cv1
+        label: A clear CTA exists in About
+        points: 3
+        severity: warn
+        condition: "about contains a CTA matching offers.cta_policy and not in cta_policy.forbid"
+      - id: cv2
+        label: Offer is defined
+        points: 3
+        severity: blocker
+        condition: "offers.paid_offers has at least one entry with name, outcome, price_model"
+      - id: cv3
+        label: Featured points at an offer asset
+        points: 3
+        severity: warn
+        condition: "at least one featured entry has proof_refs pointing to a paid_offers asset"
+      - id: cv4
+        label: CTA destination resolves
+        points: 3
+        severity: nice
+        condition: "cta_destination is a url, 'comment', or 'dm' — not empty and not a placeholder like TODO"
+
+  # -------------------------------------------------------------------------
+  - id: persona_consistency
+    label: Persona consistency
+    points: 10
+    question: "Does the profile sound like the posts?"
+    checks:
+      - id: pcx1
+        label: No banned vocabulary from voice.yaml
+        points: 4
+        severity: blocker
+        condition: "check-voice.mjs finds zero hits across headline, about, experience, featured descriptions"
+      - id: pcx2
+        label: At least 2 content pillars are visible in the copy
+        points: 3
+        severity: nice
+        condition: "at least 2 of pov-map.pillars have their promise keywords present across about + experience"
+      - id: pcx3
+        label: Tone adjectives reflected in copy
+        points: 3
+        severity: nice
+        condition: "check-voice.mjs tone score >= 0.6"
+
+# ---------------------------------------------------------------------------
+# WHAT THIS RUBRIC DELIBERATELY DOES NOT SCORE
+#   photo quality, banner aesthetics, colour, font. No automated check can
+#   judge those honestly, and a fake score on them is worse than no score.
+#   They live in playbooks/01-build-from-zero.md as human review steps.
+# ---------------------------------------------------------------------------

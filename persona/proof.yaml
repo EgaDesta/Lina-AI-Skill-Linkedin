@@ -1,0 +1,165 @@
+# Lina — Proof
+#
+# THE GUARDRAIL FILE.
+#
+# Lina is not allowed to state a number, client, company, or credential that
+# does not appear here with a `source`. Anything not sourced is treated as
+# invented and gets flagged `needs-source` by check-voice.mjs, which blocks a
+# draft from reaching approval.
+#
+# This is deliberately strict. The most damaging thing a synthetic LinkedIn
+# persona can do is manufacture a plausible-sounding result.
+#
+# VERIFICATION TIERS
+#   verified  — a document, dashboard, contract, or published artifact exists
+#   observed  — Lina was personally present and remembers it; no document
+#   anecdotal — third-party story, told second-hand
+#   NEVER     — inferred, estimated, or "industry average". Not allowed.
+
+schema_version: 1
+
+policy:
+  # Hard block. Turn off only if you accept fabricated claims in your feed.
+  require_source_for_numbers: true
+  # Numbered claims above this strength need a verified or observed source.
+  minimum_tier_for_strong_claim: observed
+  # Never publish a named client or employer without explicit permission here.
+  require_client_permission: true
+  banned_claims:
+    - "industry average"
+    - "studies show"
+    - "research proves"
+    - "most companies"
+    - "everyone knows"
+    - "it is widely known"
+    - "typical ROI"
+
+entries:
+
+  - id: p1
+    tier: observed            # verified | observed | anecdotal
+    claim: ""                 # CUSTOMIZE: the outcome, stated plainly
+    metric:
+      value: null
+      unit: ""                # percent | currency | hours | count | multiple
+      period: ""              # e.g. "first 90 days"
+      baseline: null
+    subject: ""               # who it happened to. Generic if no permission.
+    context: ""               # the starting situation, needed to make it believable
+    source: ""                # CUSTOMIZE: doc/dashboard/link/who-said-it
+    source_date: ""           # YYYY-MM-DD
+    permission: not_needed    # not_needed | granted | requested | denied
+    usable_in: [headline, about, post, case_study]
+    # Guard against repeating the same number until it goes stale.
+    freshness_months: 12
+
+  - id: p2
+    tier: observed
+    claim: ""
+    metric:
+      value: null
+      unit: ""
+      period: ""
+      baseline: null
+    subject: ""
+    context: ""
+    source: ""
+    source_date: ""
+    permission: not_needed
+    usable_in: [post, case_study]
+    freshness_months: 12
+
+  - id: p3
+    tier: verified
+    claim: ""
+    metric:
+      value: null
+      unit: ""
+      period: ""
+      baseline: null
+    subject: ""
+    context: ""
+    source: ""
+    source_date: ""
+    permission: not_needed
+    usable_in: [headline, about, post, case_study]
+    freshness_months: 12
+
+  - id: p4
+    tier: anecdotal
+    claim: ""
+    metric:
+      value: null
+      unit: ""
+      period: ""
+      baseline: null
+    subject: ""
+    context: ""
+    source: ""
+    source_date: ""
+    permission: not_needed
+    usable_in: [post]
+    freshness_months: 6
+
+  - id: p5
+    tier: verified
+    claim: ""
+    metric:
+      value: null
+      unit: ""
+      period: ""
+      baseline: null
+    subject: ""
+    context: ""
+    source: ""
+    source_date: ""
+    permission: not_needed
+    usable_in: [about, case_study]
+    freshness_months: 12
+
+# ---------------------------------------------------------------------------
+# CREDENTIALS — things a reader can independently check.
+# ---------------------------------------------------------------------------
+credentials:
+  - label: ""
+    issuer: ""
+    year: null
+    verifiable: false
+    url: ""
+
+# ---------------------------------------------------------------------------
+# PUBLIC ASSETS — usable as Featured entries.
+# ---------------------------------------------------------------------------
+assets:
+  - id: a1
+    label: ""
+    kind: case_study         # case_study | article | video | tool | newsletter | deck
+    url: ""
+    description: ""
+    proof_refs: []
+
+  - id: a2
+    label: ""
+    kind: case_study
+    url: ""
+    description: ""
+    proof_refs: []
+
+  - id: a3
+    label: ""
+    kind: article
+    url: ""
+    description: ""
+    proof_refs: []
+
+# ---------------------------------------------------------------------------
+# EMPTY-STATE INSTRUCTIONS
+# With no real proof yet, the honest strategy is not to invent it. Use these:
+#   1. Process posts: show the method, not the outcome. "Here is the exact
+#      sequence I run, and where it usually breaks." That is publishable with
+#      zero unverifiable claims.
+#   2. Opinion posts leaning on hot_takes, marked explicitly as opinion.
+#   3. Observation posts from direct work, described as observation.
+# Post rubric dimension `specificity` will score these lower. That is correct
+# behaviour, not a bug to work around.
+# ---------------------------------------------------------------------------

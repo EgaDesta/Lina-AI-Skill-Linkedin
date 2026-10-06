@@ -1,0 +1,132 @@
+# Lina — Brand Consistency
+#
+# Persona drift: Lina's copy gradually stops sounding like the persona and
+# starts sounding like whatever the last ten posts were about. It is the most
+# common failure of a long-running content system, and it is invisible
+# post-by-post. Only aggregate measurement catches it.
+#
+# These thresholds are the aggregate checks. Per-post checks live in
+# rubric/post-rubric.yaml.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# ROLLING-WINDOW AGGREGATES
+# Evaluated by scripts/check-voice.mjs --drift over the last N published posts.
+# ---------------------------------------------------------------------------
+drift:
+
+  pillar_distribution:
+    window: 30                 # posts
+    # How far the actual mix may drift from pov-map.pillars weights.
+    # Beyond this, planning is broken, not writing.
+    max_total_variation_distance: 0.20
+    # Any single pillar below this share means it is effectively abandoned.
+    min_share_per_active_pillar: 0.05
+
+  archetype_distribution:
+    window: 30
+    # No archetype may exceed this share across the window. Prevents a feed
+    # that is 40% identical opinion posts.
+    max_share_per_archetype: 0.25
+    # A pure-opinion persona reads as opinion-only and attracts commentariat.
+    min_share_actionable_archetypes: 0.35
+
+  voice_drift:
+    window: 20
+    # Each metric is scored against the aggregate of persona/voice-samples.md.
+    mean_sentence_words:
+      tolerance: 0.25          # relative
+    sentence_length_variance:
+      tolerance: 0.35          # relative
+    second_to_first_person_ratio:
+      min: 1.2
+      max: 6.0
+    emoji_per_post:
+      max: 0
+    hashtags_per_post:
+      min: 2
+      max: 6
+
+  repetition:
+    window: 30
+    # The most reliable machine-authorship tell on LinkedIn.
+    max_ngram_overlap_any_pair: 0.25   # 4-grams
+    max_hook_line_reuse_rate: 0.15    # identical opening line
+
+  # -------------------------------------------------------------------------
+  # PILLAR BLEED
+  # A post is assigned one pillar. If it is really about a second pillar, the
+  # planning is drifting even if the writing is fine.
+  # -------------------------------------------------------------------------
+  bleed:
+    max_secondary_pillar_score: 0.30
+    # If exceeded, split into two posts instead of blending two pillars.
+
+# ---------------------------------------------------------------------------
+# PROOF ROTATION
+# Repeating one strong number is how a persona starts to sound like a
+# case-study bot.
+# ---------------------------------------------------------------------------
+proof_rotation:
+  window: 20
+  max_reuse_rate_of_single_proof_entry: 0.20
+  max_reuse_rate_of_single_metric: 0.15
+
+# ---------------------------------------------------------------------------
+# CLAIM LADDER INTEGRITY
+# Every post sits at one claim level. Do not drift upward into claims the
+# evidence does not support.
+# ---------------------------------------------------------------------------
+claim_ladder:
+  - level: 1
+    label: opinion
+    requires_proof: false
+    must_hedge: true
+    max_confidence: tentative
+  - level: 2
+    label: observation
+    requires_proof: false
+    must_hedge: false
+    max_confidence: medium
+  - level: 3
+    label: measured
+    requires_proof: true
+    must_hedge: false
+    max_confidence: high
+  - level: 4
+    label: causal
+    requires_proof: true
+    requires_experiments: true
+    max_confidence: high
+
+  # A level 4 claim requires this many independent proof refs.
+  min_proof_refs_for_level_4: 2
+
+# ---------------------------------------------------------------------------
+# STOP CONDITIONS
+# When one trips, Lina pauses generation and asks a human. Automatic
+# continuation past a stop condition is the failure mode this whole file exists
+# to prevent.
+# ---------------------------------------------------------------------------
+stop_conditions:
+  - id: sc_stop_1
+    when: "profile-rubric score < 40"
+    why: "Writing content for an unclear profile amplifies the wrong message."
+    action: "block_generation_until: playbook 01 build-from-zero is complete"
+  - id: sc_stop_2
+    when: "consecutive drafts rejected by the rubric (rejected count >= 3)"
+    why: "The plan is wrong, not the prose. Rewriting again will not help."
+    action: "return to playbooks/04-content-calendar.md and re-derive pillars"
+  - id: sc_stop_3
+    when: "pov-map claim support ratio < 1.0 over a 30-post window"
+    why: "Lina is asserting beliefs with no evidence behind them."
+    action: "flag all belief-based posts for human review"
+  - id: sc_stop_4
+    when: "voice drift detected in > 40% of the window"
+    why: "The persona is dissolving."
+    action: "rebuild from persona/voice-samples.md before any more generation"
+  - id: sc_stop_5
+    when: "hard_blocks count > 0 in any draft queued for publication"
+    why: "Non-negotiable."
+    action: "block and require human edit"

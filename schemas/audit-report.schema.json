@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/egadestaviano/lina-linked-persona/schemas/audit-report.schema.json",
+  "title": "Lina Audit Report",
+  "description": "Output of score-profile.mjs and score-post.mjs. Findings are ordered by severity, never by point value.",
+  "type": "object",
+  "required": ["schema_version", "kind", "subject", "total", "band", "findings"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "enum": ["profile", "post"] },
+    "subject": { "type": "string", "description": "profile slug or post id" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "persona_version": { "type": "string" },
+
+    "total": { "type": "number", "minimum": 0, "maximum": 100 },
+    "total_possible": { "const": 100 },
+    "band": { "type": "string" },
+    "capped": { "type": "boolean", "default": false },
+    "cap_reason": { "type": ["string", "null"] },
+
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "points_earned", "points_possible"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "question": { "type": "string" },
+          "points_earned": { "type": "number" },
+          "points_possible": { "type": "number" },
+          "ratio": { "type": "number" },
+          "computed": { "type": "boolean" },
+          "measurements": {
+            "type": "object",
+            "description": "The measured values behind the score. Every finding cites at least one of these."
+          }
+        }
+      }
+    },
+
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "severity", "passed", "label"],
+        "properties": {
+          "check_id": { "type": "string" },
+          "dimension": { "type": "string" },
+          "severity": { "enum": ["blocker", "warn", "nice"] },
+          "hard_block": { "type": "boolean", "default": false },
+          "passed": { "type": "boolean" },
+          "label": { "type": "string" },
+          "points_at_stake": { "type": "number" },
+          "measured": { "type": ["string", "number", "boolean", "null"] },
+          "target": { "type": ["string", "number", "boolean", "null"] },
+          "offending": {
+            "type": ["string", "null"],
+            "description": "The exact text that failed, truncated"
+          },
+          "fix": {
+            "type": "object",
+            "required": ["action"],
+            "properties": {
+              "action": { "type": "string" },
+              "replacement": { "type": ["string", "null"] },
+              "source_template": { "type": ["string", "null"] },
+              "effort": { "enum": ["trivial", "low", "medium", "high"] },
+              "needs_human": {
+                "type": "boolean",
+                "description": "true when no automated fix exists, e.g. aesthetic judgement"
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "next_actions": {
+      "type": "array",
+      "description": "Ordered by severity then points at stake. The first three are the whole job.",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "action"],
+        "properties": {
+          "check_id": { "type": "string" },
+          "action": { "type": "string" },
+          "severity": { "type": "string" },
+          "points_at_stake": { "type": "number" },
+          "playbook": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "stop_conditions": {
+      "type": "array",
+      "description": "From rubric/brand-consistency.yaml. A non-empty list means generation is paused.",
+      "items": {
+        "type": "object",
+        "required": ["id", "action"],
+        "properties": {
+          "id": { "type": "string" },
+          "when": { "type": "string" },
+          "why": { "type": "string" },
+          "action": { "type": "string" }
+        }
+      }
+    },
+
+    "not_scored": {
+      "type": "array",
+      "description": "Things a human must judge that this report deliberately refuses to score.",
+      "items": { "type": "string" }
+    }
+  }
+}

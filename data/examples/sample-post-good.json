@@ -1,0 +1,32 @@
+{
+  "name": "Sample Post — good, for score-post.mjs",
+  "id": "sample-good-post",
+  "note": "A draft written to the rubric, used in tests. Its numbers match proof.yaml entries p1/p2/p3 in data/examples/sample-persona.yaml. Not for publication.",
+
+  "text": "Your team is paying for the same work twice.\n\nOnce when someone does it. Once when the person who knew how to do it is in a meeting and somebody has to ask.\n\nI have run the same exercise on eleven engagements now. The document that survives is never the most complete one. It is the shortest one that says who decides, what breaks, and what to do at 2am.\n\nThe First 90 Days Method I use has three steps:\n\n1. Write down what actually happens, not what is supposed to happen\n2. Delete every decision nobody remembers making\n3. Make each step fail safely instead of failing silently\n\nOne team doing about 200 invoices a week by hand got to under two hours a week. Same headcount.\n\nI have not found a way to do this that does not start with reading what people already do. That part is boring and it is the part that decides the outcome.\n\nWhat is the one process in your team that only one person understands?",
+
+  "title": "The work nobody wrote down",
+  "hook_pattern": "cost-first",
+  "language": "en",
+  "pillar": "p2",
+  "segment": "segment-1",
+  "archetype": "how_to",
+  "belief_refs": ["b1"],
+  "proof_refs": ["p2"],
+  "offer_rung": 1,
+  "claim_level": 3,
+  "status": "draft",
+
+  "hashtags": ["operations", "processdesign", "documentation"],
+  "visibility": "PUBLIC",
+  "feed_distribution": "MAIN_FEED",
+
+  "cta": {
+    "text": "What is the one process in your team that only one person understands?",
+    "destination": "comment"
+  },
+
+  "approvals": [],
+  "metrics": null,
+  "notes": "Sample for tests. Numbers reference p2 in sample-persona.yaml."
+}

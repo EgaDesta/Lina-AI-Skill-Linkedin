@@ -1,0 +1,108 @@
+# Lina — Offers
+#
+# Content without an offer is entertainment. Lina writes every post so that it
+# points at one rung of this ladder — even a pure opinion post ends in a soft
+# step up.
+#
+# Ladder shape: the free rung is the post itself, the paid rung is the work.
+# Rung 1 must be genuinely useful on its own or the whole funnel reads as bait.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# THE LADDER
+# ---------------------------------------------------------------------------
+ladder:
+
+  - rung: 1
+    id: rung-1
+    name: ""
+    kind: content              # content | resource | community | call | audit | product
+    promise: ""                # what they get, in their words
+    deliverable: ""            # what actually exists when they take it
+    effort_for_them: "under 2 minutes"
+    cta_text: ""               # the exact words used in-post
+    cta_destination: ""        # url, or "comment", or "dm"
+    # Which pillars serve this rung. Keeps the ladder honest: rung 1 posts
+    # must not be selling the rung 3 call.
+    serves: [p1, p2]
+    primary_archetypes: [framework, how_to, opinion]
+
+  - rung: 2
+    id: rung-2
+    name: ""
+    kind: resource
+    promise: ""
+    deliverable: ""
+    effort_for_them: ""
+    cta_text: ""
+    cta_destination: ""
+    serves: [p2, p3]
+    primary_archetypes: [how_to, framework, checklist]
+
+  - rung: 3
+    id: rung-3
+    name: ""
+    kind: community
+    promise: ""
+    deliverable: ""
+    effort_for_them: ""
+    cta_text: ""
+    cta_destination: ""
+    serves: [p3]
+    primary_archetypes: [story, question]
+
+  - rung: 4
+    id: rung-4
+    name: ""
+    kind: call
+    promise: ""
+    deliverable: ""
+    effort_for_them: ""
+    cta_text: ""
+    cta_destination: ""
+    # Raised only in posts that already demonstrated something. Selling here
+    # without proof is the fastest way to lose the audience the ladder built.
+    requires_proof_refs: true
+    serves: [p4, p5]
+    primary_archetypes: [case_study, story]
+
+  - rung: 5
+    id: rung-5
+    name: ""
+    kind: audit
+    promise: ""
+    deliverable: ""
+    effort_for_them: ""
+    cta_text: ""
+    cta_destination: ""
+    requires_proof_refs: true
+    serves: [p4]
+    primary_archetypes: [case_study, observation]
+
+# ---------------------------------------------------------------------------
+# HARD OFFERS — things Lina will actually be paid for.
+# Used by the headline/About templates and by the profile rubric's
+# conversion_path dimension.
+# ---------------------------------------------------------------------------
+paid_offers:
+  - name: ""
+    who_it_is_for: ""
+    outcome: ""
+    price_model: ""            # fixed | retainer | value | hourly
+    proof_refs: []
+    # The profile's Featured section must point at least one slot here.
+    featured_slot: true
+
+# ---------------------------------------------------------------------------
+# CTA DISCIPLINE
+# One CTA per post. A post with "comment YES, share it, follow me" gets the
+# lowest-effort response of all three, which is none.
+# ---------------------------------------------------------------------------
+cta_policy:
+  max_ctas_per_post: 1
+  # The engagement CTA should ask for a specific thing, not "thoughts?".
+  require_specific_question: true
+  forbid: [thoughts, agree?, anyone else, let me know below, drop a comment]
+  # Never put a CTA above the fold before the value has been delivered.
+  cta_after_value_only: true

@@ -1,0 +1,382 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/egadestaviano/lina-linked-persona/schemas/persona.schema.json",
+  "title": "Lina Persona Bundle",
+  "description": "Shape of the assembled persona bundle produced by scripts/lib/persona.mjs",
+  "type": "object",
+  "required": ["identity", "audience", "voice", "povMap", "proof", "offers", "keywords"],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "required": ["persona", "profile", "positioning", "publish"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "persona": {
+          "type": "object",
+          "required": ["name", "version", "status"],
+          "properties": {
+            "name": { "const": "Lina" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "status": { "enum": ["generic-starter", "customized", "production"] }
+          }
+        },
+        "profile": {
+          "type": "object",
+          "required": ["primary_language"],
+          "description": "Completeness is NOT enforced here. These fields ship empty in persona/*.yaml on purpose, and collectGaps() in scripts/lib/persona.mjs is the single place that decides whether a persona is filled in. Putting minLength or pattern constraints here would report the same missing field twice through two different vocabularies, and an unfilled starter persona would fail schema validation as well as the gap check.",
+          "properties": {
+            "display_name": { "type": "string" },
+            "role_title": { "type": "string" },
+            "seniority": { "enum": ["solo", "practitioner", "manager", "director", "founder", ""] },
+            "industry": { "type": "string" },
+            "domain": { "type": "string" },
+            "location": { "type": "string" },
+            "custom_url_slug": { "type": "string" },
+            "years_experience": { "type": ["number", "null"] },
+            "primary_language": { "type": "string", "minLength": 2 },
+            "timezone": { "type": "string" },
+            "profile_photo": { "type": "string" },
+            "banner_image": { "type": "string" }
+          }
+        },
+        "positioning": {
+          "type": "object",
+          "required": ["statement", "problem", "method", "differentiator"],
+          "description": "Empty strings are valid here; see profile above. collectGaps() decides whether positioning is real.",
+          "properties": {
+            "statement": { "type": "string" },
+            "problem": { "type": "string" },
+            "method": { "type": "string" },
+            "differentiator": { "type": "string" },
+            "proof_points": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "publish": {
+          "type": "object",
+          "required": ["mode", "approval_required", "min_post_score"],
+          "properties": {
+            "mode": { "enum": ["draft", "queue", "auto"] },
+            "approval_required": { "type": "boolean" },
+            "min_post_score": { "type": "number", "minimum": 0, "maximum": 100 },
+            "approval_batch_size": { "type": "integer", "minimum": 1, "maximum": 50 },
+            "max_posts_per_day": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "allowed_posting_days": {
+              "type": "array",
+              "items": { "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] }
+            },
+            "allowed_posting_times": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" }
+            },
+            "allowed_visibility": { "type": "array", "items": { "enum": ["PUBLIC", "CONNECTIONS", "LOGGED_IN"] } },
+            "allowed_feed_distribution": { "type": "array", "items": { "enum": ["MAIN_FEED", "NONE"] } }
+          }
+        }
+      }
+    },
+    "audience": {
+      "type": "object",
+      "required": ["primary", "segments"],
+      "properties": {
+        "primary": { "type": "string" },
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "role_titles": { "type": "array", "items": { "type": "string" } },
+              "seniority": { "type": "array", "items": { "type": "string" } },
+              "industries": { "type": "array", "items": { "type": "string" } },
+              "goals": { "type": "array", "items": { "type": "string" } },
+              "pains": { "type": "array", "items": { "type": "string" } },
+              "failed_attempts": { "type": "array", "items": { "type": "string" } },
+              "vocabulary": { "type": "array", "items": { "type": "string" } },
+              "objections": { "type": "array", "items": { "type": "string" } },
+              "trust_signals": { "type": "array", "items": { "type": "string" } },
+              "disengage_triggers": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "relationships": { "type": "object" },
+        "language": { "type": "object" }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "required": ["sentence", "paragraph", "vocabulary", "formatting"],
+      "properties": {
+        "tone": { "type": "object" },
+        "point_of_view": { "type": "object" },
+        "sentence": {
+          "type": "object",
+          "required": ["target_words", "max_words", "min_length_variance"],
+          "properties": {
+            "target_words": { "type": "integer", "minimum": 5, "maximum": 30 },
+            "max_words": { "type": "integer", "minimum": 8, "maximum": 45 },
+            "min_words": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "min_length_variance": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "paragraph": {
+          "type": "object",
+          "required": ["max_lines"],
+          "properties": {
+            "max_lines": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "min_words": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "vocabulary": {
+          "type": "object",
+          "required": ["prefer", "avoid"],
+          "properties": {
+            "prefer": { "type": "array", "items": { "type": "string" } },
+            "avoid": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "hedging": { "type": "object" },
+        "formatting": {
+          "type": "object",
+          "required": ["max_hashtags", "min_hashtags", "max_emoji_per_post"],
+          "properties": {
+            "line_breaks_per_paragraph": { "type": "integer", "minimum": 1, "maximum": 4 },
+            "max_emphasis_items": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "emphasis_style": { "enum": ["plain", "bold", "caps"] },
+            "emoji": { "type": "boolean" },
+            "max_emoji_per_post": { "type": "integer", "minimum": 0, "maximum": 50 },
+            "max_hashtags": { "type": "integer", "minimum": 0, "maximum": 30 },
+            "min_hashtags": { "type": "integer", "minimum": 0, "maximum": 10 },
+            "hashtag_placement": { "enum": ["end", "inline", "both"] },
+            "hashtag_style": { "enum": ["lower", "title", "any"] },
+            "contractions": { "type": "boolean" },
+            "profanity": { "enum": ["none", "mild", "free"] }
+          }
+        },
+        "banned_patterns": { "type": "array", "items": { "type": "string" } },
+        "signature": { "type": "object" }
+      }
+    },
+    "povMap": {
+      "type": "object",
+      "required": ["beliefs", "hot_takes", "pillars"],
+      "properties": {
+        "beliefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "weight", "claim", "position", "confidence"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^b\\d+$" },
+              "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+              "claim": { "type": "string" },
+              "position": { "enum": ["most_likely", "majority", "mainstream", "minority", "contrarian"] },
+              "confidence": { "enum": ["high", "medium", "tentative"] },
+              "because": { "type": "string" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } },
+              "line": { "type": "string" },
+              "open_to": { "type": "string" }
+            }
+          }
+        },
+        "hot_takes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "take"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^h\\d+$" },
+              "take": { "type": "string" },
+              "audience_who_agrees": { "type": "string" },
+              "audience_who_will_push_back": { "type": "string" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } },
+              "line": { "type": "string" }
+            }
+          }
+        },
+        "anti_positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["claim", "why_wrong"],
+            "properties": {
+              "claim": { "type": "string" },
+              "why_wrong": { "type": "string" },
+              "better_alternative": { "type": "string" },
+              "names_competitor": { "type": "boolean" }
+            }
+          }
+        },
+        "pillars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "weight"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^p\\d+$" },
+              "label": { "type": "string" },
+              "promise": { "type": "string" },
+              "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+              "maps_to_beliefs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "required": ["policy", "entries"],
+      "properties": {
+        "policy": {
+          "type": "object",
+          "required": ["require_source_for_numbers", "minimum_tier_for_strong_claim"],
+          "properties": {
+            "require_source_for_numbers": { "type": "boolean" },
+            "minimum_tier_for_strong_claim": { "enum": ["verified", "observed", "anecdotal"] },
+            "require_client_permission": { "type": "boolean" },
+            "banned_claims": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "tier", "claim"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^p\\d+$" },
+              "tier": { "enum": ["verified", "observed", "anecdotal"] },
+              "claim": { "type": "string" },
+              "metric": {
+                "type": ["object", "null"],
+                "properties": {
+                  "value": { "type": ["number", "null"] },
+                  "unit": { "type": "string" },
+                  "period": { "type": "string" },
+                  "baseline": { "type": ["number", "string", "null"] }
+                }
+              },
+              "subject": { "type": "string" },
+              "context": { "type": "string" },
+              "source": { "type": "string" },
+              "source_date": { "type": ["string", "null"] },
+              "permission": { "enum": ["not_needed", "granted", "requested", "denied"] },
+              "usable_in": {
+                "type": "array",
+                "items": { "enum": ["headline", "about", "post", "case_study"] }
+              },
+              "freshness_months": { "type": "integer", "minimum": 1, "maximum": 120 }
+            }
+          }
+        },
+        "credentials": { "type": "array" },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^a\\d+$" },
+              "label": { "type": "string" },
+              "kind": {
+                "enum": ["case_study", "article", "video", "tool", "newsletter", "deck"]
+              },
+              "url": { "type": "string" },
+              "description": { "type": "string" },
+              "proof_refs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "offers": {
+      "type": "object",
+      "required": ["ladder", "paid_offers", "cta_policy"],
+      "properties": {
+        "ladder": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rung", "kind", "cta_text"],
+            "properties": {
+              "rung": { "type": "integer", "minimum": 1, "maximum": 10 },
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "kind": {
+                "enum": ["content", "resource", "community", "call", "audit", "product"]
+              },
+              "promise": { "type": "string" },
+              "deliverable": { "type": "string" },
+              "effort_for_them": { "type": "string" },
+              "cta_text": { "type": "string" },
+              "cta_destination": { "type": "string" },
+              "serves": { "type": "array", "items": { "type": "string" } },
+              "primary_archetypes": { "type": "array", "items": { "type": "string" } },
+              "requires_proof_refs": { "type": "boolean" }
+            }
+          }
+        },
+        "paid_offers": {
+          "type": "array",
+          "description": "The shipped file carries one empty placeholder entry so the shape is visible. price_model allows an empty string because the entry is unfilled; collectGaps() reports it as a gap.",
+          "items": {
+            "type": "object",
+            "required": ["name", "outcome", "price_model"],
+            "properties": {
+              "name": { "type": "string" },
+              "who_it_is_for": { "type": "string" },
+              "outcome": { "type": "string" },
+              "price_model": { "enum": ["fixed", "retainer", "value", "hourly", ""] },
+              "proof_refs": { "type": "array", "items": { "type": "string" } },
+              "featured_slot": { "type": "boolean" }
+            }
+          }
+        },
+        "cta_policy": {
+          "type": "object",
+          "required": ["max_ctas_per_post", "require_specific_question"],
+          "properties": {
+            "max_ctas_per_post": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "require_specific_question": { "type": "boolean" },
+            "forbid": { "type": "array", "items": { "type": "string" } },
+            "cta_after_value_only": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "keywords": {
+      "type": "object",
+      "required": ["primary"],
+      "properties": {
+        "primary": {
+          "type": "object",
+          "required": ["keyword", "intent"],
+          "properties": {
+            "keyword": { "type": "string" },
+            "headline_phrase": { "type": "string" },
+            "intent": {
+              "enum": ["problem_solving", "solution_lookup", "hiring", "learning", "comparison"]
+            }
+          }
+        },
+        "secondary": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": ["keyword"],
+            "properties": {
+              "keyword": { "type": "string" },
+              "intent": { "type": "string" },
+              "placements": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "phrase_bank": { "type": "object" },
+        "hashtags": { "type": "object" },
+        "negative_keywords": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

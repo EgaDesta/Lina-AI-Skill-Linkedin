@@ -1,0 +1,66 @@
+# Lina — Keywords
+#
+# Two jobs:
+#   1. Search visibility. LinkedIn search is the discovery channel for people
+#      who are not following anyone yet.
+#   2. Positioning consistency. If the keywords contradict the headline, the
+#      profile reads as two different people and neither converts.
+#
+# Rule: 1 primary keyword, maximum 3 secondary. Beyond that the profile stops
+# being legible and starts looking like keyword stuffing.
+
+schema_version: 1
+
+primary:
+  keyword: ""                 # CUSTOMIZE: one phrase a buyer would actually type
+  # The title that must appear in the headline for this to be worth anything.
+  headline_phrase: ""
+  # Target search intents this keyword serves. Pick one dominant intent.
+  intent: problem_solving     # problem_solving | solution_lookup | hiring | learning | comparison
+
+secondary:
+  - keyword: ""
+    intent: problem_solving
+    # Where this one is allowed to live.
+    placements: [about, experience, skills, post]
+
+  - keyword: ""
+    intent: problem_solving
+    placements: [about, skills, post]
+
+  - keyword: ""
+    intent: solution_lookup
+    placements: [about, experience, post]
+
+# ---------------------------------------------------------------------------
+# PHRASE BANK — natural-language variants for body copy.
+# These are what a person types into a search box when they would never use
+# the industry term.
+# ---------------------------------------------------------------------------
+phrase_bank:
+  how_to: []
+    # e.g. "how to cut onboarding time"
+  when: []
+    # e.g. "when to hire a consultant"
+  vs: []
+    # e.g. "agency vs freelancer"
+  for: []
+    # e.g. "automation checklist for small teams"
+
+# ---------------------------------------------------------------------------
+# HASHTAGS
+# count.yaml has a decision table. Summary: 3-5, mostly small ones.
+# ---------------------------------------------------------------------------
+hashtags:
+  core: []                    # 1-2 used in most posts
+  supporting: []              # rotated
+  reach: []                   # 1-2 large, used at most twice a month
+  branded: []                 # owned by Lina, e.g. #linaautomation
+  banned: []                  # clickbait or miscategorisation
+
+# ---------------------------------------------------------------------------
+# NEGATIVE KEYWORDS
+# Topics that would attract the wrong audience and lower the right one.
+# ---------------------------------------------------------------------------
+negative_keywords: []
+  # e.g. ["crypto", "growth hacking at scale", "web3"]

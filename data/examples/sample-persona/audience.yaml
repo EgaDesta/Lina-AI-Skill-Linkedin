@@ -1,0 +1,93 @@
+# Example persona — audience.yaml
+#
+# Deliberately one filled segment rather than three. A real persona needs three,
+# but one is enough to exercise every code path, and a half-filled fixture
+# hides bugs rather than finding them.
+
+schema_version: 1
+
+primary: segment-1
+
+segments:
+
+  - id: segment-1
+    label: "Operations lead, small B2B services firm"
+    role_titles:
+      - "Operations Manager"
+      - "Operations Lead"
+      - "Head of Operations"
+      - "Practice Manager"
+    seniority: [practitioner, manager]
+    industries:
+      - "professional services"
+      - "accounting"
+      - "legal"
+      - "logistics"
+    goals:
+      - "Get through the month without something breaking"
+      - "Take three weeks off without the process stopping"
+      - "Stop being the person everyone asks about"
+    pains:
+      - "Nobody can explain how the billing step actually works"
+      - "The same mistakes get made every month"
+      - "Growth means more hours, not more margin"
+    failed_attempts:
+      - "Bought a tool nobody adopted"
+      - "Wrote documentation nobody reads"
+      - "Hired an operations person too early"
+    vocabulary:
+      - "process"
+      - "workaround"
+      - "handover"
+      - "tooling"
+      - "SOP"
+    objections:
+      - "We tried automating this and it made things worse"
+      - "The team will not adopt another system"
+      - "We do not have budget this quarter"
+    trust_signals:
+      - "specific_numbers"
+      - "named_case_study"
+      - "process_transparency"
+    disengage_triggers:
+      - "motivational_filler"
+      - "unexplained_jargon"
+      - "infographic_with_no_substance"
+
+  - id: segment-2
+    label: ""
+    role_titles: []
+    seniority: []
+    industries: []
+    goals: []
+    pains: []
+    failed_attempts: []
+    vocabulary: []
+    objections: []
+    trust_signals: []
+    disengage_triggers: []
+
+  - id: segment-3
+    label: ""
+    role_titles: []
+    seniority: []
+    industries: []
+    goals: []
+    pains: []
+    failed_attempts: []
+    vocabulary: []
+    objections: []
+    trust_signals: []
+    disengage_triggers: []
+
+relationships:
+  segment-1:
+    knows_about_me: ""
+    doesnt_know: "That documentation can be the deliverable rather than the paperwork"
+    stakes: "The cost of one person's knowledge is the whole team's margin"
+    proof_they_trust: "A measured before and after on work they recognise"
+
+language:
+  default: en
+  per_segment: {}
+  avoid_registers: [corporate_speak, buzzword_soup, jargon_without_definition]

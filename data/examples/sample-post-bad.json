@@ -1,0 +1,32 @@
+{
+  "name": "Sample Post — bad, for score-post.mjs",
+  "id": "sample-bad-post",
+  "note": "A draft that violates the rubric on purpose. Exercises every hard block: an unsourced number, a banned phrase, an AI self-reference, several vague quantifiers, no proof refs, and a CTA in the wrong position. Not for publication, and not a style exemplar.",
+
+  "text": "In today's fast-paced world, businesses are constantly seeking ways to leverage automation to unlock efficiency.\n\nMany companies have seen significant improvements. Studies show that most teams can cut costs by 47% and improve productivity by 38% within the first quarter.\n\nHere is the thing. It is not just about tools, it is about mindset.\n\nThe best-in-class approach is a game-changer. Whether you are a thought leader or just starting out, this matters.\n\nComment below and I'll share my template. Like and share if this resonates!\n\nDM me for more information about cutting your costs by 73% and reducing errors by 61% next year.\n\nDrop a comment if you agree! Follow for more cutting-edge content.",
+
+  "title": "Automation is a game changer",
+  "hook_pattern": "wrong-belief",
+  "language": "en",
+  "pillar": "p1",
+  "segment": "segment-1",
+  "archetype": "opinion",
+  "belief_refs": [],
+  "proof_refs": [],
+  "offer_rung": 4,
+  "claim_level": 4,
+  "status": "draft",
+
+  "hashtags": ["automation", "business", "growth", "innovation", "productivity"],
+  "visibility": "PUBLIC",
+  "feed_distribution": "MAIN_FEED",
+
+  "cta": {
+    "text": "DM me",
+    "destination": ""
+  },
+
+  "approvals": [],
+  "metrics": null,
+  "notes": "Fixture. Exists to prove the checks fail. Never publish this."
+}

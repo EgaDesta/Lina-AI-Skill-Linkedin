@@ -1,0 +1,55 @@
+# Example persona — identity.yaml
+#
+# A filled placeholder niche (operations automation) so the engine can be
+# exercised end to end and the tests have a known-good bundle.
+#
+# TO USE THIS: copy these seven files over persona/*.yaml and adjust the niche.
+#
+#   cp data/examples/sample-persona/*.yaml persona/
+#
+# Then copy three voice samples out of persona/voice-samples.md.
+
+schema_version: 1
+
+persona:
+  name: Lina
+  version: 0.1.0
+  status: customized
+
+profile:
+  display_name: "Alex Mercer"
+  role_title: "Operations Consultant"
+  seniority: practitioner
+  industry: "B2B services"
+  domain: "operations-automation"
+  location: "Jakarta, Indonesia"
+  custom_url_slug: "alex-mercer-operations"
+  years_experience: 11
+  primary_language: en
+  timezone: "Asia/Jakarta"
+  profile_photo: ""
+  banner_image: ""
+
+positioning:
+  statement: "I help operations teams in small B2B services firms remove the manual work that quietly consumes a full day a week, using a documented process that survives whoever built it."
+  problem: "Process knowledge lives in one person's head, so the work gets redone, and the person who knows how cannot take leave."
+  method: "The First 90 Days Method"
+  differentiator: "I document what people already do before changing anything, so the result is something the team owns rather than something they depend on me to maintain."
+  proof_points:
+    - "Invoice handling cut from about six hours a week to under two"
+    - "Eleven engagements since 2019"
+    - "Same headcount in every case"
+
+publish:
+  mode: draft
+  approval_required: true
+  min_post_score: 75
+  approval_batch_size: 5
+  max_posts_per_day: 1
+  allowed_posting_days: [mon, tue, wed, thu, fri]
+  allowed_posting_times: ["08:30", "12:00", "17:30"]
+  allowed_visibility: [PUBLIC, CONNECTIONS]
+  allowed_feed_distribution: [MAIN_FEED, NONE]
+
+required_for_first_run: |
+  - all fields above

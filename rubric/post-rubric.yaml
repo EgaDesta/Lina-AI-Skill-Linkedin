@@ -1,0 +1,231 @@
+# Lina — Post Rubric
+#
+# 100 points. A draft must reach identity.publish.min_post_score (default 75)
+# before it is allowed out of output/drafts.
+#
+# Two classes of check:
+#   computed  — scripts/score-post.mjs can measure it exactly
+#   judged    — needs the model's reading, marked `computed: false`. The model
+#               must state its reasoning in the report; an unjudged dimension
+#               scores 0 rather than being silently skipped.
+
+schema_version: 1
+total_points: 100
+
+dimensions:
+
+  - id: hook
+    label: Hook strength
+    points: 20
+    computed: true
+    question: "Does line 1 earn line 2?"
+    checks:
+      - id: h1
+        points: 6
+        computed: true
+        label: First line is under 130 characters and under 18 words
+        condition: "line 1 length <= 130 and words <= 18"
+      - id: h2
+        points: 6
+        computed: true
+        label: First line matches a hook pattern from content/hooks.md
+        condition: "line 1 (or line 1-2 combined) matches >= 1 family in hooks.md"
+      - id: h3
+        points: 4
+        computed: false
+        label: Line 1 is specific rather than generic
+        condition: "line 1 contains a concrete noun, number, situation, or stake — not only an abstraction"
+      - id: h4
+        points: 4
+        computed: false
+        label: No curiosity gap by withholding the point past the payoff
+        condition: "the post's actual claim appears by the midpoint"
+
+  - id: specificity
+    label: Specificity
+    points: 20
+    computed: false
+    question: "Is there a thing here, or only an idea?"
+    checks:
+      - id: s1
+        points: 7
+        computed: false
+        label: At least one concrete artefact: a named situation, a real number, a tool, a document, a person
+        condition: "a reader could picture the scene without inventing it"
+      - id: s2
+        points: 7
+        computed: false
+        label: Every number traces to proof.yaml with a source
+        condition: "check-voice.mjs marks zero needs-source findings; tier meets identity policy"
+      - id: s3
+        points: 6
+        computed: false
+        label: Generic filler is absent
+        condition: "no sentence that could be pasted into any other post in the niche unchanged"
+
+  - id: structure
+    label: Structure and readability
+    points: 15
+    computed: true
+    question: "Does it survive a phone screen?"
+    checks:
+      - id: st1
+        points: 5
+        computed: true
+        label: Mean sentence length within voice.yaml target
+        condition: "mean_words <= target + 4"
+      - id: st2
+        points: 4
+        computed: true
+        label: Sentence length variance above floor
+        condition: "length variance >= voice.sentence.min_length_variance"
+      - id: st3
+        points: 3
+        computed: true
+        label: Paragraph shape within voice.yaml limit
+        condition: "no paragraph > 2 lines / approx 180 chars"
+      - id: st4
+        points: 3
+        computed: false
+        label: Total length fits the format
+        condition: "text post 900-2000 chars; carousel gets a script file instead"
+
+  - id: value_density
+    label: Value density
+    points: 15
+    computed: true
+    question: "Did they learn something they could use today?"
+    checks:
+      - id: vd1
+        points: 5
+        computed: true
+        label: At least one reusable step, rule, or number
+        condition: "post contains >= 1 imperative/prescriptive sentence"
+      - id: vd2
+        points: 5
+        computed: false
+        label: Reader could act on this without reading twice
+        condition: "the practical content is stated, not gestured at"
+      - id: vd3
+        points: 5
+        computed: true
+        label: No repetition against recent posts
+        condition: "max 4-gram overlap with the 30 most recent posts < 0.25"
+
+  - id: voice_match
+    label: Persona voice match
+    points: 15
+    computed: true
+    question: "Could a reader tell which account this is?"
+    checks:
+      - id: vm1
+        points: 5
+        computed: true
+        label: Zero banned patterns
+        condition: "check-voice.mjs banned_patterns hits == 0"
+      - id: vm2
+        points: 4
+        computed: true
+        label: Zero slop phrases
+        condition: "check-voice.mjs slop hits == 0"
+      - id: vm3
+        points: 3
+        computed: true
+        label: You-to-me ratio within voice.yaml tolerance
+        condition: "second person addressed, per point_of_view.person"
+      - id: vm4
+        points: 3
+        computed: true
+        label: Style matches voice-samples.md
+        condition: "cosine-ish similarity of length and punctuation profile >= 0.7"
+
+  - id: cta
+    label: CTA and engagement mechanic
+    points: 10
+    computed: true
+    question: "One clear next step, in the reader's language?"
+    checks:
+      - id: ct1
+        points: 4
+        computed: true
+        label: Exactly one CTA
+        condition: "count of CTA markers == offers.cta_policy.max_ctas_per_post"
+      - id: ct2
+        points: 3
+        computed: true
+        label: CTA appears after the value
+        condition: "CTA marker index > 60% of post length"
+      - id: ct3
+        points: 3
+        computed: false
+        label: CTA is one the audience would actually answer
+        condition: "not in cta_policy.forbid; asks for something specific"
+
+  - id: format_fit
+    label: Format and platform fit
+    points: 5
+    computed: true
+    question: "Will LinkedIn show it properly?"
+    checks:
+      - id: ff1
+        points: 2
+        computed: true
+        label: Hashtag count within range
+        condition: "min_hashtags <= count <= max_hashtags"
+      - id: ff2
+        points: 2
+        computed: true
+        label: Emoji count within voice.yaml
+        condition: "emoji_count <= max_emoji_per_post"
+      - id: ff3
+        points: 1
+        computed: true
+        label: No unsupported formatting
+        condition: "no markdown headings, tables, or bold-wrapped-keyword spam"
+
+# ---------------------------------------------------------------------------
+# GRADING
+# ---------------------------------------------------------------------------
+grade_bands:
+  - label: reject
+    min: 0
+    max: 59
+    action: "Rewrite. Do not queue. See prompts/rewrite-post.md."
+  - label: revise
+    min: 60
+    max: 74
+    action: "Target the lowest-scoring dimension and re-run."
+  - label: approve
+    min: 75
+    max: 89
+    action: "Eligible for approval queue."
+  - label: strong
+    min: 90
+    max: 100
+    action: "Eligible. Prioritise this pillar next month."
+
+# ---------------------------------------------------------------------------
+# HARD BLOCKS — independent of total score. These fail a draft outright.
+# A high average does not excuse them.
+# ---------------------------------------------------------------------------
+hard_blocks:
+  - id: hb1
+    label: "Unsourced factual claim"
+    when: "check-voice.mjs reports needs-source > 0"
+    reason: "Lina must not manufacture results."
+  - id: hb2
+    label: "Client named without permission"
+    when: "a client or employer name appears and proof.yaml permission != granted"
+    reason: "Breach of confidentiality."
+  - id: hb3
+    label: "Banned self-reference"
+    when: "voice.banned_patterns matches an AI self-reference"
+    reason: "Immediately signals machine authorship to a professional audience."
+  - id: hb4
+    label: "Stale proof reused as current"
+    when: "a proof entry is older than freshness_months and is framed in present tense"
+    reason: "Decay is worse than omission."
+  - id: hb5
+    label: "Publishing outside the approval gate"
+    when: "publish.mode is draft/queue and status moves to published"
+    reason: "identity.publish.approval_required is not bypassed."

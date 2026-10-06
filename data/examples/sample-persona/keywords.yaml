@@ -1,0 +1,58 @@
+# Example persona — keywords.yaml
+#
+# One primary, three secondary. The limit is three for a reason: past that the
+# profile stops being legible to a human and starts looking like stuffing.
+
+schema_version: 1
+
+primary:
+  keyword: "process automation"
+  headline_phrase: "process automation"
+  intent: problem_solving
+
+secondary:
+  - keyword: "SOP documentation"
+    intent: problem_solving
+    placements: [about, experience, skills, post]
+  - keyword: "manual process"
+    intent: problem_solving
+    placements: [about, skills, post]
+  - keyword: "invoice processing"
+    intent: problem_solving
+    placements: [about, experience, post]
+
+phrase_bank:
+  how_to:
+    - "how to document a process"
+    - "how to write an SOP"
+  when:
+    - "when to hire an operations consultant"
+    - "when to automate a process"
+  vs:
+    - "automation vs documentation"
+    - "tooling vs process"
+  for:
+    - "process checklist for small teams"
+    - "handover checklist"
+
+hashtags:
+  core: ["operations", "processdesign"]
+  supporting:
+    - "documentation"
+    - "sop"
+    - "automation"
+    - "operationsmanagement"
+    - "processimprovement"
+    - "handover"
+    - "workflowdesign"
+    - "smboperations"
+  reach:
+    - "digitaltransformation"
+    - "futureofwork"
+  branded: ["first90daysmethod"]
+  banned: ["entrepreneur", "hustle", "sidehustle"]
+
+negative_keywords:
+  - "crypto"
+  - "web3"
+  - "growthhacking"

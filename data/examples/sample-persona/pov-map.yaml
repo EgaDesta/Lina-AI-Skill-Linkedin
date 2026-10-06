@@ -1,0 +1,128 @@
+# Example persona — pov-map.yaml
+#
+# Five beliefs, three hot takes, two anti-positions, five pillars.
+# Notice that every belief with confidence `high` has evidence_refs, and the
+# two that do not are `medium` and `tentative`. That is the rule
+# validate-persona.mjs enforces, and it is the difference between a POV map
+# that is an argument and one that is a wish list.
+
+schema_version: 1
+
+beliefs:
+
+  - id: b1
+    weight: 1.0
+    claim: "Documentation is the deliverable, not the paperwork that comes with the work."
+    position: minority
+    confidence: high
+    because: "On every engagement the written process outlived the tool and the person who built it."
+    evidence_refs: [p1, p2]
+    line: "The tool is the cheap part. The document is what survives."
+    open_to: "A case where a tool genuinely was the durable fix and no document was needed."
+
+  - id: b2
+    weight: 0.9
+    claim: "Most process problems are decision problems wearing a process costume."
+    position: mainstream
+    confidence: high
+    because: "Almost every failure traces back to someone deciding something the process never said."
+    evidence_refs: [p2]
+    line: "It is not that the steps are missing. It is that nobody wrote down who decides."
+    open_to: "Steps genuinely not being written down, which is rarer than it sounds."
+
+  - id: b3
+    weight: 0.8
+    claim: "Automation before documentation makes the mess faster."
+    position: majority
+    confidence: medium
+    because: "I have seen two engagements where automating an undocumented process spent six months and returned nothing."
+    evidence_refs: [p1]
+    line: "Automating an undocumented process just makes the confusion move faster."
+    open_to: "Situations where the process is genuinely obvious and the constraint is tooling."
+
+  - id: b4
+    weight: 0.7
+    claim: "A process nobody can hand over is not a process."
+    position: mainstream
+    confidence: medium
+    because: "Handover is the only honest test of whether something is documented."
+    evidence_refs: []
+    line: "If one person being ill stops the business, it is not a process. It is a person."
+    open_to: "Small teams where this is acceptable and nobody is pretending otherwise."
+
+  - id: b5
+    weight: 0.6
+    claim: "The teams that need automation most are the ones least able to change the process."
+    position: contrarian
+    confidence: tentative
+    because: "The people closest to the pain are also the ones whose week is full."
+    evidence_refs: []
+    line: "The teams in most pain are the ones with no time to fix it. That is not a character flaw."
+    open_to: "Teams who found slack I did not see."
+
+hot_takes:
+
+  - id: h1
+    take: "Buying a tool before writing the process down is how companies end up with an expensive way to be confused faster."
+    audience_who_agrees: "Operations leads who have lived this"
+    audience_who_will_push_back: "Vendors, and anyone who thinks tooling is a shortcut to capability"
+    evidence_refs: [p1]
+    line: "Buying the tool first is how you end up with an expensive way to be confused faster."
+
+  - id: h2
+    take: "Time off is a process test. Nobody else is running that test."
+    audience_who_agrees: "Anyone who has had to cover for a colleague"
+    audience_who_will_push_back: "Small teams who normalise it"
+    evidence_refs: []
+    line: "If taking leave stops the work, you do not have a process. You have a person."
+
+  - id: h3
+    take: "Most documentation fails because it describes the process as intended rather than as performed."
+    audience_who_agrees: "Anyone who has compared the two"
+    audience_who_will_push_back: "Teams proud of their documentation"
+    evidence_refs: [p3]
+    line: "Most documentation describes the process as intended. The work is done the other way."
+
+anti_positions:
+
+  - claim: "Automation is the goal."
+    why_wrong: "Automation without a documented decision is a faster way to do the wrong thing."
+    better_alternative: "Document the decisions first. Automate what survives that."
+    names_competitor: false
+
+  - claim: "AI will make the documentation problem disappear."
+    why_wrong: "A model can draft the document. It cannot tell you which step people actually skip."
+    better_alternative: "Watch the work once, write that down, then let a model help you keep it current."
+    names_competitor: false
+
+pillars:
+
+  - id: p1
+    label: "Diagnostic"
+    promise: "tell whether the manual work is costing more than it looks"
+    weight: 0.40
+    maps_to_beliefs: [b3, b5]
+
+  - id: p2
+    label: "Method"
+    promise: "the documented process that survives whoever built it"
+    weight: 0.25
+    maps_to_beliefs: [b1, b2]
+
+  - id: p3
+    label: "Evidence"
+    promise: "what it looked like before and after on work you recognise"
+    weight: 0.20
+    maps_to_beliefs: [b1, b2]
+
+  - id: p4
+    label: "Position"
+    promise: "why documentation beats tooling as the first move"
+    weight: 0.10
+    maps_to_beliefs: [b3, b4]
+
+  - id: p5
+    label: "Signal"
+    promise: "what changed in how small teams run their processes"
+    weight: 0.05
+    maps_to_beliefs: [b5]

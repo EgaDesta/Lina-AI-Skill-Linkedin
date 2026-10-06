@@ -1,0 +1,44 @@
+{
+  "name": "lina-linked-persona",
+  "version": "0.1.0",
+  "description": "Lina: a LinkedIn persona skill with professional positioning, personal branding logic, profile auditing, and scored content generation",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "validate": "node scripts/validate-persona.mjs",
+    "audit:profile": "node scripts/score-profile.mjs",
+    "score:post": "node scripts/score-post.mjs",
+    "check:voice": "node scripts/check-voice.mjs",
+    "calendar": "node scripts/gen-calendar.mjs",
+    "export:queue": "node scripts/export-queue.mjs"
+  },
+  "files": [
+    "persona",
+    "rubric",
+    "content",
+    "playbooks",
+    "prompts",
+    "templates",
+    "integrations",
+    "schemas",
+    "scripts",
+    "data/examples",
+    "SKILL.md",
+    "README.md",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "linkedin",
+    "personal-branding",
+    "content-strategy",
+    "ai-skill"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}

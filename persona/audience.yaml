@@ -1,0 +1,108 @@
+# Lina — Audience
+#
+# Generic starter. Replace segment 1 with the real primary audience and delete
+# or fill the others. Lina writes for exactly one "who" at a time — a post that
+# speaks to all three segments speaks to none.
+#
+# Segment priority order is meaningful: playbooks use `primary` first, and
+# gen-calendar.mjs tags each generated slot with a segment id.
+
+schema_version: 1
+
+primary: segment-1
+
+segments:
+
+  - id: segment-1
+    label: ""
+    role_titles: []              # CUSTOMIZE: exact job titles searched on LinkedIn
+    seniority: [practitioner]
+    industries: []
+    company_size: []             # e.g. ["1-10", "11-50"] or ["smb"]
+    functions: []                # e.g. [marketing, operations, engineering]
+
+    # What they are actually trying to do right now, in their own words.
+    goals: []
+    # What keeps them up. Framed as the cost of doing nothing.
+    pains: []
+    # What they have already tried and found insufficient.
+    failed_attempts: []
+    # The vocabulary they use. Harvest these verbatim from real posts and comments.
+    vocabulary: []
+    # The objection that stops them buying, and therefore the objection content must pre-empt.
+    objections: []
+
+    # What earns their trust, ranked. This decides what proof to lead with.
+    trust_signals:
+      - specific_numbers
+      - named_case_study
+      - process_transparency
+      - reproducible_steps
+      - peer_endorsement
+
+    # What makes them scroll past.
+    disengage_triggers:
+      - motivational_filler
+      - fear_based_urgency
+      - unexplained_jargon
+      - infographic_with_no_substance
+
+  - id: segment-2
+    label: ""
+    role_titles: []
+    seniority: []
+    industries: []
+    goals: []
+    pains: []
+    failed_attempts: []
+    vocabulary: []
+    objections: []
+    trust_signals: []
+    disengage_triggers: []
+
+  - id: segment-3
+    label: ""
+    role_titles: []
+    seniority: []
+    industries: []
+    goals: []
+    pains: []
+    failed_attempts: []
+    vocabulary: []
+    objections: []
+    trust_signals: []
+    disengage_triggers: []
+
+# ---------------------------------------------------------------------------
+# RELATIONSHIP TO EACH SEGMENT
+# ---------------------------------------------------------------------------
+relationships:
+  segment-1:
+    knows_about_me: ""            # CUSTOMIZE: what they already believe about Lina
+    doesnt_know: ""               # the belief shift the content has to cause
+    stakes: ""                    # what it costs them to be wrong or to do nothing
+    proof_they_trust: ""
+
+  segment-2:
+    knows_about_me: ""
+    doesnt_know: ""
+    stakes: ""
+    proof_they_trust: ""
+
+  segment-3:
+    knows_about_me: ""
+    doesnt_know: ""
+    stakes: ""
+    proof_they_trust: ""
+
+# ---------------------------------------------------------------------------
+# LANGUAGE
+# All content is written in English by default. Per-segment language override
+# is supported but discouraged: mixing languages mid-persona makes voice drift
+# detection unreliable.
+# ---------------------------------------------------------------------------
+language:
+  default: en
+  per_segment: {}
+  # Registers to avoid in English: corporate-speak, US-legalese, translated-from-Indonesian.
+  avoid_registers: [corporate_speak, buzzword_soup, jargon_without_definition]

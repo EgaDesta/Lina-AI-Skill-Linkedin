@@ -1,0 +1,85 @@
+# Example persona — offers.yaml
+#
+# Five rungs. Rungs 4 and 5 carry `requires_proof_refs: true`, which is what
+# stops gen-calendar.mjs putting a sales CTA into a post with no evidence
+# behind it.
+
+schema_version: 1
+
+ladder:
+
+  - rung: 1
+    id: rung-1
+    name: "The post itself"
+    kind: content
+    promise: "a way to spot whether your manual work is costing more than it looks"
+    deliverable: "the post"
+    effort_for_them: "under 2 minutes"
+    cta_text: "What is the one process in your team that only one person understands?"
+    cta_destination: "comment"
+    serves: [p1, p2]
+    primary_archetypes: [framework, how_to, opinion]
+
+  - rung: 2
+    id: rung-2
+    name: "Process documentation template"
+    kind: resource
+    promise: "the one-page template used on every engagement"
+    deliverable: "a PDF and a copy in Google Docs"
+    effort_for_them: "5 minutes to fill in"
+    cta_text: "I will send the template if you want it. Say so and I will."
+    cta_destination: "dm"
+    serves: [p2, p3]
+    primary_archetypes: [how_to, framework, checklist]
+
+  - rung: 3
+    id: rung-3
+    name: "Monthly process review"
+    kind: community
+    promise: "a monthly working session with other operations leads"
+    deliverable: "one call a month, small group"
+    effort_for_them: "an hour a month"
+    cta_text: "I run a monthly session with four other operations leads. DM me if you want a seat."
+    cta_destination: "dm"
+    serves: [p3]
+    primary_archetypes: [story, question]
+
+  - rung: 4
+    id: rung-4
+    name: "Process documentation engagement"
+    kind: call
+    promise: "your real process written down, and the decisions in it made explicit"
+    deliverable: "a documented process the team owns, plus a handover drill"
+    effort_for_them: "a conversation, then a decision"
+    cta_text: "If you want the process documented properly, DM me."
+    cta_destination: "dm"
+    requires_proof_refs: true
+    serves: [p4, p5]
+    primary_archetypes: [case_study, story]
+
+  - rung: 5
+    id: rung-5
+    name: "Two-week diagnostic"
+    kind: audit
+    promise: "a written assessment of what your manual work actually costs"
+    deliverable: "a written diagnostic with the three changes that matter first"
+    effort_for_them: "one call to start"
+    cta_text: "I do a two-week diagnostic. DM me if you want the details."
+    cta_destination: "dm"
+    requires_proof_refs: true
+    serves: [p4]
+    primary_archetypes: [case_study, observation]
+
+paid_offers:
+  - name: "Process documentation engagement"
+    who_it_is_for: "operations leads in 5-50 person B2B services firms where the process lives in one person's head"
+    outcome: "a process the team can run without you, and a handover that works"
+    price_model: fixed
+    proof_refs: [p1, p2]
+    featured_slot: true
+
+cta_policy:
+  max_ctas_per_post: 1
+  require_specific_question: true
+  forbid: [thoughts, agree?, anyone else, let me know below, drop a comment]
+  cta_after_value_only: true

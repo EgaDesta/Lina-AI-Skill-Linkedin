@@ -1,0 +1,57 @@
+{
+  "name": "Sample Profile — deliberately mediocre",
+  "custom_url_slug": "412837465",
+  "publicIdentifier": "412837465",
+  "note": "A realistic weak profile, used to exercise score-profile.mjs. Every weak point here maps to a check id in rubric/profile-rubric.yaml. Not a real person.",
+
+  "headline": "Experienced Consultant",
+  "about": "I am a passionate and results-driven professional with over 10 years of experience in the industry. I have a proven track record of leading teams and delivering value. Throughout my career, I have worked with many clients and helped them streamline their processes. I am always looking for new opportunities to make an impact. Feel free to reach out if you would like to connect.",
+  "experience": [
+    {
+      "title": "Senior Consultant",
+      "company": "Big Firm Ltd",
+      "start": "2019",
+      "end": "present",
+      "bullets": [
+        "Responsible for process improvement across client accounts",
+        "Helped with automation initiatives for various teams",
+        "Streamlined the onboarding process for new hires"
+      ]
+    },
+    {
+      "title": "Consultant",
+      "company": "Midsize Co",
+      "start": "2016",
+      "end": "2019",
+      "bullets": [
+        "Worked with cross-functional teams to improve communication",
+        "Supported the implementation of new tooling",
+        "Recognised for strong attention to detail"
+      ]
+    },
+    {
+      "title": "Analyst",
+      "company": "Small Startup",
+      "start": "2014",
+      "end": "2016",
+      "bullets": [
+        "Improved reporting quality",
+        "Assisted the team with data collection"
+      ]
+    }
+  ],
+  "featured": [
+    {
+      "title": "My company website",
+      "kind": "article",
+      "url": "https://example.com",
+      "description": "Company site"
+    }
+  ],
+  "education": [],
+  "licenses": [],
+  "skills": ["Microsoft Office", "Communication", "Project Management", "Team Building", "Public Speaking"],
+  "contact": {},
+  "banner_image": "",
+  "profile_photo": ""
+}

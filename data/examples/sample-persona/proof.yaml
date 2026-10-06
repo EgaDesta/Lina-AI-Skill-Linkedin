@@ -1,0 +1,134 @@
+# Example persona — proof.yaml
+#
+# Five entries at four different tiers, which is what makes the fixture useful:
+# a test can check that a `verified` number passes the gate and an `anecdotal`
+# one is flagged as weaker.
+#
+# These numbers are illustrative. Replace them before using this as a real
+# persona. Lina's value is that it will not work with invented proof.
+
+schema_version: 1
+
+policy:
+  require_source_for_numbers: true
+  minimum_tier_for_strong_claim: observed
+  require_client_permission: true
+  banned_claims:
+    - "industry average"
+    - "studies show"
+    - "research proves"
+    - "most companies"
+    - "everyone knows"
+    - "it is widely known"
+    - "typical ROI"
+
+entries:
+
+  - id: p1
+    tier: observed
+    claim: "Invoice handling went from about six hours a week to under two, with no change in headcount, on a team doing about 200 invoices a week by hand"
+    metric:
+      value: 68
+      unit: percent
+      period: first quarter
+      baseline: 6
+    subject: "a 12-person finance team in a B2B services firm"
+    context: "Reconciling about 200 invoices a week by hand against three systems with no shared identifiers"
+    source: "client's own time log, reviewed together at handover"
+    source_date: "2025-03-14"
+    permission: granted
+    usable_in: [headline, about, post, case_study]
+    freshness_months: 12
+
+  - id: p2
+    tier: observed
+    claim: "Eleven engagements since 2019, each starting by documenting the existing process before changing it"
+    metric:
+      value: 11
+      unit: count
+      period: since 2019
+      baseline: null
+    subject: "small B2B services firms"
+    context: "The same three-step sequence, applied in that order every time"
+    source: "engagement records, Lina's own logbook"
+    source_date: "2025-01-20"
+    permission: not_needed
+    usable_in: [about, post, case_study]
+    freshness_months: 24
+
+  - id: p3
+    tier: verified
+    claim: "Two engagements spent six months automating a process that had never been documented and produced no measurable change"
+    metric:
+      value: 2
+      unit: count
+      period: two years
+      baseline: 0
+    subject: "two engagements, both abandoned at the client's request"
+    context: "Tooling bought first, process written afterwards"
+    source: "engagement close-out notes"
+    source_date: "2024-11-02"
+    permission: not_needed
+    usable_in: [post, case_study]
+    freshness_months: 18
+
+  - id: p4
+    tier: anecdotal
+    claim: "A colleague's team ran a handover drill over one weekend and found four steps nobody had done in two years"
+    metric:
+      value: 4
+      unit: count
+      period: one weekend
+      baseline: 0
+    subject: "a colleague's team, relayed second-hand"
+    context: "Told to Lina by the colleague after a similar exercise with her own clients"
+    source: "conversation with a named colleague, June 2025"
+    source_date: "2025-06-10"
+    permission: not_needed
+    usable_in: [post]
+    freshness_months: 6
+
+  - id: p5
+    tier: verified
+    claim: "11 years in operations roles across services, logistics, and two small software firms"
+    metric:
+      value: 11
+      unit: years
+      period: current
+      baseline: null
+    subject: "Lina's own career"
+    context: "Six years inside companies before consulting"
+    source: "employment history, verifiable on request"
+    source_date: "2025-01-05"
+    permission: not_needed
+    usable_in: [about, case_study]
+    freshness_months: 60
+
+credentials:
+  - label: ""
+    issuer: ""
+    year: null
+    verifiable: false
+    url: ""
+
+assets:
+  - id: a1
+    label: "Cutting invoice handling from 6h to under 2h a week"
+    kind: case_study
+    url: ""
+    description: "A 12-person finance team, three systems with no shared identifiers, same headcount throughout."
+    proof_refs: [p1]
+
+  - id: a2
+    label: "The First 90 Days Method"
+    kind: article
+    url: ""
+    description: "The three-step sequence, written up, including what it does not cover."
+    proof_refs: [p2]
+
+  - id: a3
+    label: "Process documentation template"
+    kind: article
+    url: ""
+    description: "The one-page template used on every engagement."
+    proof_refs: [p2]
