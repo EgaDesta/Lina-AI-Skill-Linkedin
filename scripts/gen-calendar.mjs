@@ -54,6 +54,8 @@ const seg = primarySegment(persona);
 // ---------------------------------------------------------------------------
 // Window
 // ---------------------------------------------------------------------------
+// Exit code is decided at the very end, after all output, so `--json` consumers
+// get a complete document before the process ends.
 const startISO = args.flags.start ?? nextMonday();
 const days = Number(args.flags.days ?? 30);
 const start = parseDate(startISO);
@@ -74,39 +76,61 @@ const MAX_ARCH = drift.archetype_distribution?.max_share_per_archetype ?? 0.25;
 const MIN_ACTIONABLE = drift.archetype_distribution?.min_share_actionable_archetypes ?? 0.35;
 const ACTIONABLE = new Set(['framework', 'how_to', 'case_study', 'checklist', 'myth_busting', 'observation']);
 
-// A deterministic archetype list, ordered so the quota is met by construction.
-function buildArchetypePlan(total) {
-  const quota = Math.floor(total * MAX_ARCH);
-  // opinion, framework, how_to, case_study, observation, myth_busting,
-  // story, question, announcement, checklist
-  const caps = {
-    opinion: quota,
-    framework: quota,
-    how_to: quota,
-    case_study: quota,
-    observation: quota,
-    myth_busting: quota,
-    story: quota,
-    question: quota,
-    announcement: quota,
-    checklist: quota,
-  };
-  // Fill proportionally to the total, respecting caps, then top up with the
-  // archetypes that carry the most value.
-  const order = ['how_to', 'framework', 'observation', 'case_study', 'checklist', 'myth_busting', 'opinion', 'story', 'question', 'announcement'];
-  const out = [];
-  let i = 0;
-  while (out.length < total) {
-    const a = order[i % order.length];
-    const round2 = Math.floor(i / order.length);
-    const limit = Math.max(1, Math.floor(total * MAX_ARCH) + (a === 'how_to' ? 1 : 0) - round2);
-    if (caps[a] < limit) {
-      caps[a]++;
-      out.push(a);
-    }
-    i++;
-    if (i > total * 20) break;
+/**
+ * Build the archetype plan.
+ *
+ * Apportionment against the ceiling, then an interleave pass. The previous
+ * version round-robined a fixed ordered list, which for any plan smaller than
+ * the list length emitted the first archetype for every slot — a 22-slot window
+ * came out 100% how_to, then reported itself as violating its own ceiling.
+ *
+ * The ceiling is a cap, not a target. Nothing here aims at the maximum; the goal
+ * is "as varied as the cap allows", which is what stops a feed looking like one
+ * format repeated.
+ */
+function buildArchetypePlan(total, cap = MAX_ARCH) {
+  if (total <= 0) return [];
+  const order = [
+    'how_to', 'framework', 'observation', 'checklist',
+    'case_study', 'myth_busting', 'opinion', 'story', 'question', 'announcement',
+  ];
+  const capCount = Math.max(1, Math.floor(total * cap));
+
+  // Pass 1: deal slots out evenly, then interleave in pass 2 so consecutive
+  // slots are rarely the same archetype.
+  const base = Math.floor(total / order.length);
+  const extra = total % order.length;
+  const pools = new Map();
+  for (let i = 0; i < order.length; i++) {
+    const n = base + (i < extra ? 1 : 0);
+    if (n > 0) pools.set(order[i], Array.from({ length: n }, () => order[i]));
   }
+
+  const out = [];
+  let progress = true;
+  while (out.length < total && progress) {
+    progress = false;
+    for (const a of order) {
+      if (out.length >= total) break;
+      const pool = pools.get(a);
+      if (!pool || pool.length === 0) continue;
+      out.push(pool.pop());
+      progress = true;
+    }
+  }
+
+  // Enforce the ceiling: if even distribution exceeds it, spill the surplus
+  // into the archetypes currently holding the fewest slots.
+  const count = (a) => out.filter((x) => x === a).length;
+  for (let i = out.length - 1; i >= 0; i--) {
+    const a = out[i];
+    if (count(a) <= capCount) continue;
+    const [leanest] = order
+      .filter((x) => count(x) < capCount)
+      .sort((x, y) => count(x) - count(y));
+    if (leanest) out[i] = leanest;
+  }
+
   return out;
 }
 
@@ -326,6 +350,10 @@ function truncate(s, n) {
   const str = String(s ?? '').trim();
   return str.length <= n ? str : `${str.slice(0, n - 1)}…`;
 }
+function csvEscape(v) {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 function isoDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -374,6 +402,14 @@ if (args.flags.csv) {
   const csvPath = (out ?? 'output/calendar.json').replace(/\.json$/, '.csv');
   writeText(csvPath, `${csv}\n`);
   console.error(`wrote ${csvPath}`);
+}
+
+// `--json` prints the document and nothing else. The human summary is a separate
+// mode; a machine consumer that asked for JSON must not have to strip a report
+// off the front of it, and must not have to care whether the plan had warnings.
+if (args.flags.json) {
+  console.log(JSON.stringify(calendar, null, 2));
+  process.exit(violations.length > 0 ? 1 : 0);
 }
 
 console.log(`LINA CONTENT PLAN  ${startISO} -> ${endISO(end)}`);

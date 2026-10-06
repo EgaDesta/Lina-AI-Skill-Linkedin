@@ -30,6 +30,25 @@ function runJson(script, args = []) {
   }
 }
 
+/** Count CSV cells honouring RFC 4180 quoting. */
+function countCsvCells(line) {
+  let cells = 1;
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (quoted && line[i + 1] === '"') {
+        i++;
+        continue;
+      }
+      quoted = !quoted;
+      continue;
+    }
+    if (ch === ',' && !quoted) cells++;
+  }
+  return cells;
+}
+
 // ---------------------------------------------------------------------------
 // validate-persona
 // ---------------------------------------------------------------------------
@@ -84,14 +103,18 @@ test('score-profile finds the blockers on a weak profile', () => {
   assert.ok(out.capped, 'a weak profile should trip the cap');
   const failedBlockers = out.findings.filter((f) => !f.passed && f.severity === 'blocker').map((f) => f.check_id);
   assert.ok(failedBlockers.includes('pc2'), 'no primary keyword in the headline');
-  assert.ok(failedBlockers.includes('cv2'), 'no offer defined');
+  assert.ok(failedBlockers.includes('pc1'), 'headline says "Experienced Consultant", not the persona role title');
+  assert.ok(failedBlockers.includes('cm3'), 'the sample About is under 500 characters');
   assert.ok(out.total <= 59, 'capped total must not exceed 59');
 });
 
-test('score-profile flags the banned vocabulary in the weak sample', () => {
+test('score-profile measures vocabulary against the persona avoid-list', () => {
+  // pcx1 checks voice.vocabulary.avoid, not the global hard-ban list. The
+  // sample About says "results-driven", which the example persona bans.
   const out = runJson('score-profile.mjs', ['--file', repoPath('data', 'examples', 'sample-profile.json')]);
   const pcx1 = out.findings.find((f) => f.check_id === 'pcx1');
-  assert.ok(!pcx1.passed, 'the sample About contains "passionate" and "results-driven"');
+  assert.ok(!pcx1.passed, 'the sample About contains "results-driven"');
+  assert.match(pcx1.measured, /results-driven/);
 });
 
 test('score-profile orders findings by severity then points', () => {
@@ -296,9 +319,16 @@ test('check-voice exit code reflects blocking findings', () => {
 });
 
 test('check-voice handles a profile export as well as a post', () => {
+  // A profile export has no `text` field, so check-voice concatenates the fields
+  // a visitor actually reads before checking. That is why a profile can be run
+  // through the same tool as a draft.
   const out = runJson('check-voice.mjs', ['--file', repoPath('data', 'examples', 'sample-profile.json')]);
   assert.equal(out.kind, 'voice');
-  assert.ok(out.counts.hard_bans > 0, 'the weak profile About contains banned phrases');
+  assert.ok(out.counts.soft_tells > 0, 'the weak profile About trips several soft tells');
+  assert.ok(
+    (out.vocabulary?.banned_prefer ?? []).length > 0,
+    'the About says "results-driven", which the example persona bans',
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -383,16 +413,68 @@ test('gen-calendar blocks on an incomplete persona', () => {
 
 test('gen-calendar writes csv when asked', () => {
   const out = path.join(os.tmpdir(), `lina-cal-${process.pid}.json`);
+  const csvPath = out.replace(/\.json$/, '.csv');
   try {
-    const r = run('gen-calendar.mjs', ['--start', '2026-01-05', '--days', '14', '--csv', '--out', out]);
-    const csv = path.join(path.dirname(out), 'lina-cal.csv'.replace(/^lina-cal/, path.basename(out, '.json')));
-    const csvPath = out.replace(/\.json$/, '.csv');
+    run('gen-calendar.mjs', ['--start', '2026-01-05', '--days', '14', '--csv', '--out', out]);
     assert.ok(fs.existsSync(out), 'json not written');
     assert.ok(fs.existsSync(csvPath), 'csv not written');
-    const header = fs.readFileSync(csvPath, 'utf8').split('\n')[0];
-    assert.ok(header.startsWith('id,date,time,pillar'), header);
+    const lines = fs.readFileSync(csvPath, 'utf8').trim().split('\n');
+    // Must match content/calendar.template.csv, which is what the Sheets queue
+    // and the Make scenario both map onto by name.
+    const expected = fs
+      .readFileSync(repoPath('content', 'calendar.template.csv'), 'utf8')
+      .split('\n')[0];
+    assert.equal(lines[0], expected, 'csv header must match content/calendar.template.csv');
+    assert.ok(lines.length > 1, 'csv has no data rows');
+
+    // Count columns quote-aware. A naive split on "," undercounts rows whose
+    // hook_brief legitimately contains a comma, which is most of them.
+    const cols = countCsvCells(lines[0]);
+    for (const line of lines.slice(1)) {
+      assert.equal(countCsvCells(line), cols, `ragged csv row: ${line.slice(0, 80)}`);
+    }
+    assert.ok(
+      lines.slice(1).some((l) => l.includes('"')),
+      'at least one row should exercise the quoting path',
+    );
   } finally {
-    for (const f of [out, out.replace(/\.json$/, '.csv')]) if (fs.existsSync(f)) fs.unlinkSync(f);
+    for (const f of [out, csvPath]) if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+test('gen-calendar produces a varied archetype mix', () => {
+  // Regression: the first implementation round-robined an ordered list, which
+  // for a 22-slot window emitted the first archetype 22 times and then reported
+  // itself as violating its own ceiling.
+  const out = runJson('gen-calendar.mjs', ['--start', '2026-01-05', '--days', '30']);
+  const shares = Object.entries(out.distribution.archetypes).map(([k, v]) => [k, v.actual]);
+  assert.ok(shares.length >= 5, `only ${shares.length} archetypes in a 22-slot plan`);
+  const max = Math.max(...shares.map(([, v]) => v));
+  assert.ok(max <= 0.25 + 0.02, `largest archetype share is ${max}`);
+  assert.equal(
+    out.violations.filter((v) => v.rule === 'archetype_share').length,
+    0,
+    'a correct plan should not report an archetype-share violation',
+  );
+});
+
+test('gen-calendar is deterministic for a given start date (again, after mix fix)', () => {
+  const a = runJson('gen-calendar.mjs', ['--start', '2026-02-02', '--days', '20']);
+  const b = runJson('gen-calendar.mjs', ['--start', '2026-02-02', '--days', '20']);
+  assert.deepEqual(
+    a.slots.map((s) => `${s.date}|${s.archetype}|${s.hook_family}`),
+    b.slots.map((s) => `${s.date}|${s.archetype}|${s.hook_family}`),
+  );
+});
+
+test('gen-calendar does not repeat an archetype on consecutive days', () => {
+  const out = runJson('gen-calendar.mjs', ['--start', '2026-01-05', '--days', '30']);
+  for (let i = 1; i < out.slots.length; i++) {
+    assert.notEqual(
+      out.slots[i].archetype,
+      out.slots[i - 1].archetype,
+      `slots ${i - 1} and ${i} are both ${out.slots[i].archetype}`,
+    );
   }
 });
 

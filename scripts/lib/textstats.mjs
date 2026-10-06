@@ -44,11 +44,13 @@ export function sentences(text) {
   const DOT = String.fromCharCode(2); // stand-in for the marker's period
 
   return cleaned
+    // Normalise a bullet to a numbered item, so one code path handles both. The
+    // separator replaces the newline rather than inserting a period, which would
+    // double up with the punctuation already ending the previous item.
+    .replace(/(?:^|\n)\s*[-*•]\s+/g, `${SENT}- `)
     .replace(/(^|[\n]|(?<=[.!?]\s))\s*(\d{1,2})([.)])\s+/g, (m, lead, num, punct) =>
-      punct === '.'
-        ? `${lead}${num}${DOT}${SENT}`
-        : `${lead}${num}${SENT}`)
-    .split(/(?<=[.!?])\s+(?=[A-Z0-9"'(\[])/)
+      punct === '.' ? `${lead}${num}${DOT}${SENT}` : `${lead}${num}${SENT}`)
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9"'(\[]|\u0001)/)
     .map((s) => s.split(SENT).join(' ').split(DOT).join('.').trim())
     .filter((s) => s.length > 0);
 }
@@ -195,9 +197,11 @@ const IMPERATIVE_VERBS = [
   'read', 'look', 'find', 'count', 'compare', 'cut', 'replace', 'move',
   'write down', 'write it down', 'put', 'keep', 'make', 'give', 'take',
   'send', 'call', 'book', 'share', 'note', 'set', 'decide', 'name',
+  'delete', 'skip', 'start with', 'end with', 'begin', 'finish', 'avoid',
+  'expect', 'assume', 'ignore', 'waste', 'pay', 'hire', 'fire', 'fix',
 ];
 const IMPERATIVE_RE = new RegExp(
-  `^(?:\\d+[.)]\\s*|[-*•]\\s*)?(?:${IMPERATIVE_VERBS.join('|')})\\b`,
+  `^(?:\\d{1,2}[.)]\\s+|[-*•]\\s+)?(?:${IMPERATIVE_VERBS.join('|')})\\b`,
   'i',
 );
 

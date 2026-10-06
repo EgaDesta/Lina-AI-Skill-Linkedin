@@ -135,9 +135,23 @@ test('lookups return null rather than throwing', () => {
 });
 
 test('schema rejects a wrong enum value', () => {
+  // The enum lives on the `mode` subschema, so validate a scalar against that
+  // subschema directly. Handing it an object would compare the object against
+  // the enum, which fails for the wrong reason and would pass for the right one.
   const schema = loadSchema('persona.schema.json');
-  const errors = validateAgainstSchema({ mode: 'yolo' }, schema.properties.identity.properties.publish.properties);
-  assert.ok(errors.some((e) => /enum/.test(e.message)));
+  const modeSchema = schema.properties.identity.properties.publish.properties.mode;
+  const errors = validateAgainstSchema('yolo', modeSchema);
+  assert.ok(errors.some((e) => /enum/.test(e.message)), JSON.stringify(errors));
+  assert.deepEqual(validateAgainstSchema('draft', modeSchema), []);
+  assert.deepEqual(validateAgainstSchema('auto', modeSchema), []);
+});
+
+test('schema rejects a wrong publish mode on a whole persona', () => {
+  const p = loadPersona(EXAMPLE);
+  const broken = JSON.parse(JSON.stringify(p));
+  broken.identity.publish.mode = 'auto-everything';
+  const errors = validateWithSchema(broken, 'persona.schema.json');
+  assert.ok(errors.some((e) => /mode/.test(e.pointer) && /enum/.test(e.message)), JSON.stringify(errors));
 });
 
 test('schema rejects a missing required property', () => {
