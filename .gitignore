@@ -17,9 +17,27 @@ output/reports/*
 queue.csv
 queue.csv.status
 
-# Profile snapshots. These contain a person's real profile data. Keep them local.
+# Reports name real people and quote their profiles. Audit output is derived from
+# the local profile snapshot, so it carries the same sensitivity.
+output/reports/*
+!output/reports/.gitkeep
+output/audit/*
+!output/audit/.gitkeep
+
+# Real profile snapshots. These contain a real person's name, employers, location
+# and contact details, and this repository may be public. Keep them local.
 data/profiles/
+data/imports/
 *.private.json
+
+# Belt and braces: a scraped export anywhere in the tree, whatever it is called.
+# A real LinkedIn export contains `custom_url_slug` plus a populated `about`;
+# no fixture in this repo has both a real slug and a filled About.
+**/scraped-*.json
+**/*-linkedin.json
+profile-*.json
+import-*.json
+!data/examples/*.json
 
 # Published history contains every post ever written. Useful locally, not
 # something that belongs in a repository.
